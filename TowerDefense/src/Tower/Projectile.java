@@ -55,7 +55,7 @@ public class Projectile {
 
     public void move() {
         // Kiểm tra xem đạn đã trúng quân địch
-        if (Math.abs(xLoc - xDest) < speed / 2 || Math.abs(yLoc - yDest) < speed / 2) {
+        if (Math.abs(xLoc - xDest) < speed / 2 && Math.abs(yLoc - yDest) < speed / 2) {
             arrivedAtTarget = true;
             targetEnemy.takeDamage(damage);
 
