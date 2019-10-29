@@ -26,7 +26,7 @@ class CompareEnemySpeed implements Comparator<Enemy> {
 
 public abstract class Tower {
     public enum TowerType {
-        NORMAL, MACHINEGUN, SNIPER
+        NORMAL, MACHINE_GUN, SNIPER
     }
 
     // Vị trí tháp theo mảng hai chiều
@@ -49,8 +49,6 @@ public abstract class Tower {
 
     Enemy targetEnemy; // Mục tiêu hiện tại của tháp
 
-    private ArrayList<Projectile> projectiles;
-
     public Tower(int xLoc, int yLoc, int damage, double fireRange, double reloadTime) {
         this.xLoc = xLoc;
         this.yLoc = yLoc;
@@ -64,7 +62,6 @@ public abstract class Tower {
 
         compareSpeed = new CompareEnemySpeed();
         enemiesInRange = new PriorityQueue(compareSpeed);
-        projectiles = new ArrayList<>();
 
         targetEnemy = null;
 
@@ -78,7 +75,7 @@ public abstract class Tower {
 
     /* Tìm tất cả các quân địch trong tầm bắn
        Dùng hàng chờ ưu tiên (Priority Queue) vì:
-            + Ưu tiên quân địch có di chuyển nhanh nhất để bắn trước.
+            + Ưu tiên quân địch có di chuyển nhanh nhất (máu cũng ít nhất) để bắn trước.
             + Quân địch nào vào tầm bắn trước sẽ được trọn trước nếu cùng tốc độ di chuyển
             + Nếu mục tiêu tháp đang chọn ra khỏi tầm bắn sẽ cập nhật luôn được mục tiêu tiếp theo
     * */
@@ -93,7 +90,7 @@ public abstract class Tower {
         }
     }
 
-    // Chọn mục tiêu
+    // Chọn mục tiêu là phần từ đầu tiên của hàng chờ ưu tiên
     public void setTarget() {
         if (enemiesInRange.size() >= 1) {
             targetEnemy = enemiesInRange.peek();
@@ -115,7 +112,8 @@ public abstract class Tower {
     }
 
     public Projectile shoot(Enemy targetEnemy) {
-        if (timeSinceLastShot + PlayScreen.delta >= reloadTime && targetEnemy != null) {
+        timeSinceLastShot += PlayScreen.delta;
+        if (timeSinceLastShot >= reloadTime && targetEnemy != null) {
             timeSinceLastShot = 0;
             return new Projectile(this.xPos, this.yPos, targetEnemy.getxPos(), targetEnemy.getyPos(), towerDamage, targetEnemy);
         } else {
@@ -125,10 +123,6 @@ public abstract class Tower {
 
     public Enemy getTargetEnemy() {
         return targetEnemy;
-    }
-
-    public int getNumberOfEnemiesInRange() {
-        return enemiesInRange.size();
     }
 
     // Cộng 90 do chiều của file ảnh png có sẵn xoay chậm hơn 90 độ

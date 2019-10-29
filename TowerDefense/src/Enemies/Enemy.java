@@ -35,8 +35,8 @@ public abstract class Enemy {
 
     private int[] directions;
     // Mảng lưu hướng thay đổi của địch theo Pixel, có 2 phần tử
-    // 0: thay đổi theo hướng x
-    // 1: thay đổi theo hướng y
+    // directions[0]: thay đổi theo hướng x
+    // directions[1]: thay đổi theo hướng y
 
     private boolean first = true; // Kiểm tra địch xem có đang ở ô xuất phát hay không
     private boolean alive = true;

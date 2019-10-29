@@ -25,8 +25,8 @@ public class MenuScreen extends BasicGameState {
     public int getID() {
         return 0;
     }
-    
-    
+
+
     @Override
     public void init(GameContainer gameContainer, StateBasedGame stateBasedGame) throws SlickException {
         loadImage();
@@ -59,13 +59,13 @@ public class MenuScreen extends BasicGameState {
 
     public void drawImage(GameContainer gc) {
         backGround.draw(0, 0);
-        logo.draw(gc.getWidth()/2 - logo.getWidth()/2, 0);
+        logo.draw(gc.getWidth() / 2 - logo.getWidth() / 2, 0);
         startButtonGraphic.draw((gc.getWidth() - startButtonGraphic.getWidth()) / 2, gc.getHeight() - logo.getHeight());
-        exitButtonGraphic.draw((gc.getWidth() - exitButtonGraphic.getWidth())/2, logo.getHeight() + startButtonGraphic.getHeight() + 70);
+        exitButtonGraphic.draw((gc.getWidth() - exitButtonGraphic.getWidth()) / 2, logo.getHeight() + startButtonGraphic.getHeight() + 70);
     }
 
     public void createButton(GameContainer gc) {
         startButton = new Rectangle((gc.getWidth() - startButtonGraphic.getWidth()) / 2, gc.getHeight() - logo.getHeight(), startButtonGraphic.getWidth(), startButtonGraphic.getHeight());
-        exitButton = new Rectangle((gc.getWidth() - exitButtonGraphic.getWidth())/2, logo.getHeight() + startButtonGraphic.getHeight() + 70, exitButtonGraphic.getWidth(), exitButtonGraphic.getHeight());
+        exitButton = new Rectangle((gc.getWidth() - exitButtonGraphic.getWidth()) / 2, logo.getHeight() + startButtonGraphic.getHeight() + 70, exitButtonGraphic.getWidth(), exitButtonGraphic.getHeight());
     }
 }

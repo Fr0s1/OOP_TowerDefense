@@ -16,7 +16,7 @@ import org.newdawn.slick.state.StateBasedGame;
 import java.util.ArrayList;
 
 public class PlayScreen extends BasicGameState {
-    public static float delta = 33 * 0.001f; // Giá trị của delta trong hàm update() của lớp PlayScreen, nôm na là thời gian update giữa các khung hình
+    public static float delta = 33 * 0.001f; // Giá trị của delta trong hàm update(), tính theo giây = 0.033 giây
 
     private PlayMap playMap = new PlayMap(CustomMap.map1);
 
@@ -38,12 +38,16 @@ public class PlayScreen extends BasicGameState {
     Tower t1 = new NormalTower(3, 7);
     Tower t3 = new NormalTower(3, 11);
 
+    ArrayList<Projectile> projectiles;
+
     public PlayScreen(int state) {
 
     }
 
     @Override
     public void init(GameContainer gameContainer, StateBasedGame stateBasedGame) throws SlickException {
+        projectiles = new ArrayList<>();
+
         // Load các file ảnh đại diện cho đối tượng tương ứng
         roadTile = new Image("graphics/MapTile/sand_tile.png"); // Ảnh đường đi
         towerTile = new Image("graphics/MapTile/grass_tile.png"); // Ảnh tháp
@@ -71,12 +75,19 @@ public class PlayScreen extends BasicGameState {
         }
 
         drawTowers();
+        drawProjectiles();
     }
 
     @Override
     public void update(GameContainer gameContainer, StateBasedGame stateBasedGame, int delta) throws SlickException {
         wave.update();
         updateTower(Tower.towersList);
+
+        for (Projectile p : projectiles) {
+            if (p != null) {
+                p.move();
+            }
+        }
     }
 
     @Override
@@ -107,8 +118,8 @@ public class PlayScreen extends BasicGameState {
         for (Tower tower : towersList) {
             tower.addEnemiesInRange(EnemyWave.enemyList);
             tower.setTarget();
+            projectiles.add(tower.shoot(tower.getTargetEnemy()));
             tower.updateTarget();
-            tower.shoot(tower.getTargetEnemy());
         }
     }
 
@@ -118,6 +129,30 @@ public class PlayScreen extends BasicGameState {
             towerBase.draw(tower.getXPos(), tower.getYPos());
             img.setRotation(tower.getAngleOfRotationInDegrees());
             img.drawCentered(tower.getXPos() + normalTower.getWidth() / 2, tower.getYPos() + normalTower.getHeight() / 2);
+        }
+    }
+
+    public void drawProjectiles() {
+//        for (Projectile p : projectiles) {
+//            if (p != null && !p.hasArrived()) {
+//                Image projectile = normalTowerProjectile;
+//                projectile.setRotation((float) p.angleOfProjectileInDegrees());
+//                projectile.draw((float) p.getX(), (float) p.getY());
+//            }
+//        }
+
+        for (int i = 0; i < projectiles.size(); i++) {
+            if (projectiles.get(i) != null) {
+                if (projectiles.get(i).hasArrived()) {
+                    projectiles.remove(i);
+                } else {
+                    if (!projectiles.get(i).hasArrived()) {
+                        Image projectile = normalTowerProjectile;
+                        projectile.setRotation((float) projectiles.get(i).angleOfProjectileInDegrees());
+                        projectile.draw((float) projectiles.get(i).getX(), (float) projectiles.get(i).getY());
+                    }
+                }
+            }
         }
     }
 

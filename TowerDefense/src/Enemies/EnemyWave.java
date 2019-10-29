@@ -22,23 +22,38 @@ public class EnemyWave {
             timeSinceLastSpawn = 0;
         }
 
-        for (Enemy e : enemyList) {
-            if (e.isAlive()) {
-                e.move();
-            } else {
+//        for (Enemy e : enemyList) {
+//            if (e.isAlive()) {
+//                e.move();
+//            } else {
+//
+//            }
+//        }
 
+        for (int i = 0; i < enemyList.size(); i++) {
+            if (enemyList.get(i).isAlive()) {
+                enemyList.get(i).move();
+            } else {
+                enemyList.remove(i);
             }
         }
     }
 
     private void spawn() {
-        if (enemyList.size() < 7) {
+        if (enemyList.size() < 5) {
             if (i++ % 2 == 0) {
                 enemyList.add(new NormalEnemy());
             } else {
                 enemyList.add(new FastEnemy());
             }
+//            enemyList.add(new NormalEnemy());
         }
 //        enemyList.add(new NormalEnemy());
+
+//        if (i++ % 2 == 0) {
+//            enemyList.add(new NormalEnemy());
+//        } else {
+//            enemyList.add(new FastEnemy());
+//        }
     }
 }

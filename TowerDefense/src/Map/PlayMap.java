@@ -11,7 +11,6 @@ public class PlayMap {
 
         mapTile = new Tile[customMap.length][customMap[0].length];
 
-
         // Create 2D Tile Map from 2D array
         for (int y = 0; y < mapTile.length; y++) {
             for (int x = 0; x < mapTile[0].length; x++) {
