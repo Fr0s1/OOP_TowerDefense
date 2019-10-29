@@ -22,14 +22,6 @@ public class EnemyWave {
             timeSinceLastSpawn = 0;
         }
 
-//        for (Enemy e : enemyList) {
-//            if (e.isAlive()) {
-//                e.move();
-//            } else {
-//
-//            }
-//        }
-
         for (int i = 0; i < enemyList.size(); i++) {
             if (enemyList.get(i).isAlive()) {
                 enemyList.get(i).move();

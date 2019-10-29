@@ -118,7 +118,10 @@ public class PlayScreen extends BasicGameState {
         for (Tower tower : towersList) {
             tower.addEnemiesInRange(EnemyWave.enemyList);
             tower.setTarget();
-            projectiles.add(tower.shoot(tower.getTargetEnemy()));
+            Projectile newProjectile = tower.shoot(tower.getTargetEnemy());
+            if (newProjectile != null) {
+                projectiles.add(newProjectile);
+            }
             tower.updateTarget();
         }
     }
@@ -133,25 +136,13 @@ public class PlayScreen extends BasicGameState {
     }
 
     public void drawProjectiles() {
-//        for (Projectile p : projectiles) {
-//            if (p != null && !p.hasArrived()) {
-//                Image projectile = normalTowerProjectile;
-//                projectile.setRotation((float) p.angleOfProjectileInDegrees());
-//                projectile.draw((float) p.getX(), (float) p.getY());
-//            }
-//        }
-
         for (int i = 0; i < projectiles.size(); i++) {
-            if (projectiles.get(i) != null) {
-                if (projectiles.get(i).hasArrived()) {
-                    projectiles.remove(i);
-                } else {
-                    if (!projectiles.get(i).hasArrived()) {
-                        Image projectile = normalTowerProjectile;
-                        projectile.setRotation((float) projectiles.get(i).angleOfProjectileInDegrees());
-                        projectile.draw((float) projectiles.get(i).getX(), (float) projectiles.get(i).getY());
-                    }
-                }
+            if (projectiles.get(i).hasArrived()) {
+                projectiles.remove(i);
+            } else {
+                Image projectile = normalTowerProjectile;
+                projectile.setRotation((float) projectiles.get(i).angleOfProjectileInDegrees());
+                projectile.draw((float) projectiles.get(i).getX(), (float) projectiles.get(i).getY());
             }
         }
     }
