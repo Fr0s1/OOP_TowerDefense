@@ -3,10 +3,11 @@ package Tower;
 public class NormalTower extends Tower {
     //
     private static double fireRange = 48 * Math.sqrt(13);
-    private static int damage = 20;
+    private static double damage = 20;
     private static float reloadTime = 0.6f;
+    private static TowerType type = TowerType.NORMAL_TOWER;
 
     public NormalTower(int xLoc, int yLoc) {
-        super(xLoc, yLoc, damage, fireRange, reloadTime);
+        super(xLoc, yLoc, damage, fireRange, reloadTime, type);
     }
 }

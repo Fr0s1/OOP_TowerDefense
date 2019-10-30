@@ -26,16 +26,17 @@ class CompareEnemySpeed implements Comparator<Enemy> {
 
 public abstract class Tower {
     public enum TowerType {
-        NORMAL, MACHINE_GUN, SNIPER
+        NORMAL_TOWER, MACHINE_GUN_TOWER, SNIPER_TOWER
     }
 
+    TowerType towerType;
     // Vị trí tháp theo mảng hai chiều
     int xLoc, yLoc;
 
     // Vị trí tháp theo Pixel
     int xPos, yPos;
 
-    int towerDamage;    // Sát thương của tháp
+    double towerDamage;    // Sát thương của tháp
     double fireRange;   // Tầm bắn của tháp
     double timeSinceLastShot;
     double reloadTime;  // Thời gian nạp đạn
@@ -49,7 +50,7 @@ public abstract class Tower {
 
     Enemy targetEnemy; // Mục tiêu hiện tại của tháp
 
-    public Tower(int xLoc, int yLoc, int damage, double fireRange, double reloadTime) {
+    public Tower(int xLoc, int yLoc, double damage, double fireRange, double reloadTime, TowerType type) {
         this.xLoc = xLoc;
         this.yLoc = yLoc;
         this.xPos = xLoc * PlayMap.tileSize;
@@ -67,6 +68,7 @@ public abstract class Tower {
 
         timeSinceLastShot = 0;
         this.reloadTime = reloadTime;
+        this.towerType = type;
     }
 
     public double calculateDistanceToEnemy(Enemy enemy) {
@@ -115,7 +117,15 @@ public abstract class Tower {
         timeSinceLastShot += PlayScreen.delta;
         if (timeSinceLastShot >= reloadTime && targetEnemy != null) {
             timeSinceLastShot = 0;
-            return new Projectile(this.xPos, this.yPos, targetEnemy.getxPos(), targetEnemy.getyPos(), towerDamage, targetEnemy);
+
+            switch (towerType) {
+                case NORMAL_TOWER:
+                    return new Projectile(this.xPos, this.yPos, targetEnemy.getxPos(), targetEnemy.getyPos(), towerDamage, targetEnemy, Projectile.ProjectileType.NORMAL_PROJECTILE);
+                case SNIPER_TOWER:
+                    return new Projectile(this.xPos, this.yPos, targetEnemy.getxPos(), targetEnemy.getyPos(), towerDamage, targetEnemy, Projectile.ProjectileType.SNIPER_PROJECTILE);
+                default:
+                    return new Projectile(this.xPos, this.yPos, targetEnemy.getxPos(), targetEnemy.getyPos(), towerDamage, targetEnemy, Projectile.ProjectileType.MACHINE_GUN_PROJECTILE);
+            }
         } else {
             return null;
         }
@@ -153,7 +163,7 @@ public abstract class Tower {
         return yPos;
     }
 
-    public int getDamage() {
+    public double getDamage() {
         return towerDamage;
     }
 
@@ -163,5 +173,9 @@ public abstract class Tower {
 
     public double getReloadTime() {
         return reloadTime;
+    }
+
+    public TowerType getType() {
+        return towerType;
     }
 }

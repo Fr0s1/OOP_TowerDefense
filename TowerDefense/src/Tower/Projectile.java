@@ -1,17 +1,18 @@
 package Tower;
 
 import Enemies.Enemy;
+import Map.PlayMap;
 
 public class Projectile {
     public enum ProjectileType {
-        MACHINE_GUN, NORMAL, SNIPER
+        MACHINE_GUN_PROJECTILE, NORMAL_PROJECTILE, SNIPER_PROJECTILE
     }
 
     // Vị trí (Pixel) theo đường bay của đạn
     private double xLoc;
     private double yLoc;
 
-    // Vị trí tới của đạn tức vị trí của mục tiêu tại thời điểm đạn vừa được bắn ra
+    // Vị trí đích của đạn tức vị trí của đích tại đúng thời điểm đạn vừa được bắn ra
     private double xDest;
     private double yDest;
 
@@ -25,7 +26,7 @@ public class Projectile {
     private boolean arrivedAtTarget = false;
     private Enemy targetEnemy;
 
-    public Projectile(double xInit, double yInit, double xDest, double yDest, double damage, Enemy targetEnemy) {
+    public Projectile(double xInit, double yInit, double xDest, double yDest, double damage, Enemy targetEnemy, ProjectileType type) {
         this.xInit = xInit;
         this.yInit = yInit;
         this.xDest = xDest;
@@ -39,8 +40,8 @@ public class Projectile {
         this.damage = damage;
         this.targetEnemy = targetEnemy;
 
-//        projType = pType;
-        if (projType == ProjectileType.SNIPER) {
+        this.projType = type;
+        if (projType == ProjectileType.SNIPER_PROJECTILE) {
             speed = 30;
         }
     }
@@ -55,7 +56,7 @@ public class Projectile {
 
     public void move() {
         // Kiểm tra xem đạn đã trúng quân địch
-        if (Math.abs(xLoc - xDest) < speed / 2 && Math.abs(yLoc - yDest) < speed / 2) {
+        if (Math.abs(xLoc - xDest) <= PlayMap.tileSize / 3 && Math.abs(yLoc - yDest) <= PlayMap.tileSize / 3) {
             arrivedAtTarget = true;
             targetEnemy.takeDamage(damage);
 
