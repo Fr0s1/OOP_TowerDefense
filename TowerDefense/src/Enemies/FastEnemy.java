@@ -1,14 +1,15 @@
 package Enemies;
-
 import Map.PlayMap;
 
+
 public class FastEnemy extends Enemy {
-    private static int movementSpeed = 75;
+    private static double movementSpeed = 100;
     private static EnemyType type = EnemyType.FAST;
     private static int reward = 50;
-    private static int health = 60;
+    private static double health = 60;
+    private static double armor = 1.0f;
 
     public FastEnemy() {
-        super(type, PlayMap.startTile, health, movementSpeed, reward);
+        super(type, PlayMap.startTile, health, movementSpeed, armor, reward);
     }
 }

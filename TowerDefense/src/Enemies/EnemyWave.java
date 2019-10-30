@@ -41,7 +41,7 @@ public class EnemyWave {
 //            enemyList.add(new NormalEnemy());
         }
 //        enemyList.add(new NormalEnemy());
-
+//
 //        if (i++ % 2 == 0) {
 //            enemyList.add(new NormalEnemy());
 //        } else {

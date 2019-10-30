@@ -15,8 +15,11 @@ public abstract class Enemy {
         FAST, NORMAL, TANKER, BOSS
     }
 
-    private double health;
+    private double maxHealth;
+    private double currentHealth;
+
     private double movementSpeed;
+    private double armor;
     private int reward;
 
     private Tile spawnTile; // Vị trí sinh quân địch
@@ -41,11 +44,16 @@ public abstract class Enemy {
     private boolean first = true; // Kiểm tra địch xem có đang ở ô xuất phát hay không
     private boolean alive = true;
 
-    public Enemy(EnemyType type, Tile spawnTile, int health, int movementSpeed, int reward) {
+    public Enemy(EnemyType type, Tile spawnTile, double currentHealth, double movementSpeed, double armor, int reward) {
         this.type = type;
-        this.health = health;
+
+        this.maxHealth = currentHealth;
+        this.currentHealth = currentHealth;
+
         this.movementSpeed = movementSpeed;
+        this.armor = armor;
         this.reward = reward;
+
         this.spawnTile = spawnTile;
         this.xLoc = spawnTile.getX();
         this.yLoc = spawnTile.getY();
@@ -61,6 +69,7 @@ public abstract class Enemy {
         findAllCheckpoints(); // Thêm vào mảng tất cả các ô ở góc
     }
 
+    // Tìm hết tất cả các ô ở góc
     private void findAllCheckpoints() {
         checkpoints.add(findNextCheckpoint(spawnTile, directions = findNextDirection(spawnTile)));
 
@@ -78,26 +87,6 @@ public abstract class Enemy {
                         directions = findNextDirection(checkpoints.get(counter).getTile())));
             }
             counter++;
-        }
-    }
-
-    public void move() {
-        if (first) {
-            first = false;
-        } else {
-            if (checkpointReached()) {
-                if (currentCheckpoint == checkpoints.size() - 1) {
-                    die();
-                } else {
-                    currentCheckpoint++;
-                }
-            } else {
-                xPos += checkpoints.get(currentCheckpoint).getxDirection() * movementSpeed * getDelta();
-                updateXLoc(yPos);
-
-                yPos += checkpoints.get(currentCheckpoint).getyDirection() * movementSpeed * getDelta();
-                updateYLoc(yPos);
-            }
         }
     }
 
@@ -120,6 +109,26 @@ public abstract class Enemy {
         }
 
         return reached;
+    }
+
+    public void move() {
+        if (first) {
+            first = false;
+        } else {
+            if (checkpointReached()) {
+                if (currentCheckpoint == checkpoints.size() - 1) {
+                    die();
+                } else {
+                    currentCheckpoint++;
+                }
+            } else {
+                xPos += checkpoints.get(currentCheckpoint).getxDirection() * movementSpeed * getDelta();
+                updateXLoc(yPos);
+
+                yPos += checkpoints.get(currentCheckpoint).getyDirection() * movementSpeed * getDelta();
+                updateYLoc(yPos);
+            }
+        }
     }
 
     // Tìm ô ở góc từ 1 ô đường đi
@@ -186,8 +195,8 @@ public abstract class Enemy {
     }
 
     public void takeDamage(double damage) {
-        health -= damage;
-        if (health <= 0) {
+        currentHealth -= damage / armor;
+        if (currentHealth <= 0.0) {
             die();
         }
     }
@@ -200,8 +209,12 @@ public abstract class Enemy {
         return alive;
     }
 
-    public double getHealth() {
-        return health;
+    public double getCurrentHealth() {
+        return currentHealth;
+    }
+
+    public double getMaxHealth() {
+        return maxHealth;
     }
 
     public double getMovementSpeed() {
