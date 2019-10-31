@@ -11,7 +11,7 @@ import java.util.*;
 import static HelpfulFunctions.Function.*;
 import static Enemies.EnemyWave.*;
 
-class CompareEnemySpeed implements Comparator<Enemy> {
+class CompareEnemy implements Comparator<Enemy> {
     @Override
     public int compare(Enemy o1, Enemy o2) {
         if (o1.getMovementSpeed() < o2.getMovementSpeed()) {
@@ -45,7 +45,7 @@ public abstract class Tower {
 
     public static ArrayList<Tower> towersList; // Mảng lưu tất cả những tháp đang có trên sân
 
-    CompareEnemySpeed compareSpeed;
+    CompareEnemy compareEnemy;
     private PriorityQueue<Enemy> enemiesInRange; // Hàng chờ lưu những quân địch có trong tầm bắn của tháp
 
     Enemy targetEnemy; // Mục tiêu hiện tại của tháp
@@ -61,8 +61,8 @@ public abstract class Tower {
 
         towersList = new ArrayList<>();
 
-        compareSpeed = new CompareEnemySpeed();
-        enemiesInRange = new PriorityQueue(compareSpeed);
+        compareEnemy = new CompareEnemy();
+        enemiesInRange = new PriorityQueue(compareEnemy);
 
         targetEnemy = null;
 

@@ -5,28 +5,45 @@ import GamePlay.PlayScreen;
 import java.util.ArrayList;
 
 public class EnemyWave {
+
     public static ArrayList<Enemy> enemyList;
+
     static int i = 0;
+
     private float timeSinceLastSpawn, spawnTime;
 
     public EnemyWave(float spawnTime) {
+
         this.spawnTime = spawnTime;
+
         timeSinceLastSpawn = 0;
+
         enemyList = new ArrayList<>();
+
     }
 
     public void update() {
+
         timeSinceLastSpawn += PlayScreen.delta * 10;
+
         if (timeSinceLastSpawn > spawnTime) {
+
             spawn();
+
             timeSinceLastSpawn = 0;
+
         }
 
         for (int i = 0; i < enemyList.size(); i++) {
+
             if (enemyList.get(i).isAlive()) {
+
                 enemyList.get(i).move();
+
             } else {
+
                 enemyList.remove(i);
+
             }
         }
     }
@@ -48,4 +65,5 @@ public class EnemyWave {
 //            enemyList.add(new FastEnemy());
 //        }
     }
+
 }

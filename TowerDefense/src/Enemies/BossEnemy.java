@@ -3,6 +3,7 @@ package Enemies;
 import Map.PlayMap;
 
 public class BossEnemy extends Enemy {
+
     private static double movementSpeed = 30;
     private static Enemy.EnemyType type = EnemyType.BOSS;
     private static int reward = 150;
