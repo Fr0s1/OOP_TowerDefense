@@ -6,6 +6,23 @@ import java.util.ArrayList;
 
 public class EnemyWave {
 
+    int[][] enemyWave = {
+            {2, 1, 0, 0, 0},
+            {5, 2, 0, 0, 0},
+            {6, 2, 1, 0, 0},
+            {6, 3, 2, 2, 1},
+            {6, 3, 3, 3, 1},
+            {8, 4, 4, 4, 1},
+            {9, 5, 5, 5, 2},
+            {10, 6, 6, 6, 2},
+            {12, 6, 6, 7, 2},
+            {15, 6, 8, 8, 2},
+            {16, 6, 9, 9, 3},
+            {20, 8, 10, 10, 3}
+    };
+
+    int level = 0;
+
     public static ArrayList<Enemy> enemyList;
 
     static int i = 0;
@@ -65,5 +82,4 @@ public class EnemyWave {
 //            enemyList.add(new FastEnemy());
 //        }
     }
-
 }

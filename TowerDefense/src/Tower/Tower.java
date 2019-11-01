@@ -43,8 +43,6 @@ public abstract class Tower {
 
     float angleOfRotation;
 
-    public static ArrayList<Tower> towersList; // Mảng lưu tất cả những tháp đang có trên sân
-
     CompareEnemy compareEnemy;
     private PriorityQueue<Enemy> enemiesInRange; // Hàng chờ lưu những quân địch có trong tầm bắn của tháp
 
@@ -55,11 +53,11 @@ public abstract class Tower {
         this.yLoc = yLoc;
         this.xPos = xLoc * PlayMap.tileSize;
         this.yPos = yLoc * PlayMap.tileSize;
+
         this.towerDamage = damage;
         this.fireRange = fireRange;
-        angleOfRotation = 0;
 
-        towersList = new ArrayList<>();
+        angleOfRotation = 0;
 
         compareEnemy = new CompareEnemy();
         enemiesInRange = new PriorityQueue(compareEnemy);
@@ -67,7 +65,9 @@ public abstract class Tower {
         targetEnemy = null;
 
         timeSinceLastShot = 0;
+
         this.reloadTime = reloadTime;
+
         this.towerType = type;
     }
 
@@ -113,19 +113,39 @@ public abstract class Tower {
         }
     }
 
-    public Projectile shoot(Enemy targetEnemy) {
+    public boolean canAttack() {
         timeSinceLastShot += PlayScreen.delta;
+
         if (timeSinceLastShot >= reloadTime && targetEnemy != null) {
+
+            timeSinceLastShot = 0;
+
+            return true;
+
+        } else {
+
+            return false;
+
+        }
+    }
+
+    public Projectile shoot(Enemy targetEnemy) {
+
+        if (canAttack()) {
+
             timeSinceLastShot = 0;
 
             switch (towerType) {
+
                 case NORMAL_TOWER:
                     return new Projectile(this.xPos, this.yPos, targetEnemy.getxPos(), targetEnemy.getyPos(), towerDamage, targetEnemy, Projectile.ProjectileType.NORMAL_PROJECTILE);
                 case SNIPER_TOWER:
                     return new Projectile(this.xPos, this.yPos, targetEnemy.getxPos(), targetEnemy.getyPos(), towerDamage, targetEnemy, Projectile.ProjectileType.SNIPER_PROJECTILE);
                 default:
                     return new Projectile(this.xPos, this.yPos, targetEnemy.getxPos(), targetEnemy.getyPos(), towerDamage, targetEnemy, Projectile.ProjectileType.MACHINE_GUN_PROJECTILE);
+
             }
+
         } else {
             return null;
         }

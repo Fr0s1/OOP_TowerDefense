@@ -29,10 +29,6 @@ public abstract class Enemy {
     private float xPos;
     private float yPos;
 
-    // Tọa độ theo mảng hai chiều
-    private int xLoc;
-    private int yLoc;
-
     private ArrayList<Checkpoint> checkpoints; // Mảng lưu các ô ở góc trên đường đi
     private int currentCheckpoint; // Vị trí trong mảng
 
@@ -43,6 +39,7 @@ public abstract class Enemy {
 
     private boolean first = true; // Kiểm tra địch xem có đang ở ô xuất phát hay không
     private boolean alive = true;
+    private boolean visible = true;
 
     public Enemy(EnemyType type, Tile spawnTile, double currentHealth, double movementSpeed, double armor, int reward) {
         this.type = type;
@@ -55,10 +52,8 @@ public abstract class Enemy {
         this.reward = reward;
 
         this.spawnTile = spawnTile;
-        this.xLoc = spawnTile.getX();
-        this.yLoc = spawnTile.getY();
-        this.xPos = xLoc * PlayMap.tileSize;
-        this.yPos = yLoc * PlayMap.tileSize;
+        this.xPos = spawnTile.getX() * PlayMap.tileSize;
+        this.yPos = spawnTile.getY() * PlayMap.tileSize;
 
         this.checkpoints = new ArrayList<>();
         this.currentCheckpoint = 0;
@@ -71,6 +66,7 @@ public abstract class Enemy {
 
     // Hàm tìm hướng đi tiếp theo ở ô đường đi bất kì
     private int[] findNextDirection(Tile currentTile) {
+
         int[] dir = new int[2];
 
         Tile u = PlayMap.getTile(currentTile.getX(), currentTile.getY() - 1);
@@ -117,6 +113,7 @@ public abstract class Enemy {
         int counter = 1;
 
         while (!found) {
+
             if (currentTile.getX() + dir[0] * counter == PlayMap.getWidthOfMap() || currentTile.getY() + dir[1] * counter == PlayMap.getHeightOfMap() || currentTile.getType() !=
                     PlayMap.getTile(currentTile.getX() + dir[0] * counter, currentTile.getY() + dir[1] * counter).getType()) {
 
@@ -171,16 +168,14 @@ public abstract class Enemy {
 
         // Check if position reached tile within variance of 3 (arbitrary):
 
-        if (xPos > nextCheckpoint.getXPixel() - 3 && xPos < nextCheckpoint.getXPixel() + 3
-                && yPos > nextCheckpoint.getYPixel() - 3 && yPos < nextCheckpoint.getYPixel() + 3) {
+        if (xPos > nextCheckpoint.getXPixel() - 5 && xPos < nextCheckpoint.getXPixel() + 5
+                && yPos > nextCheckpoint.getYPixel() - 5 && yPos < nextCheckpoint.getYPixel() + 5) {
 
             reached = true;
 
             xPos = nextCheckpoint.getXPixel();
-            updateXLoc(xPos);
 
             yPos = nextCheckpoint.getYPixel();
-            updateYLoc(yPos);
 
         }
 
@@ -193,21 +188,23 @@ public abstract class Enemy {
             first = false;
 
         } else {
+
             if (checkpointReached()) {
 
                 if (currentCheckpoint == checkpoints.size() - 1) {
-                    die();
+
+                    visible = false;
+
                 } else {
+
                     currentCheckpoint++;
                 }
 
             } else {
 
                 xPos += checkpoints.get(currentCheckpoint).getxDirection() * movementSpeed * getDelta();
-                updateXLoc(yPos);
 
                 yPos += checkpoints.get(currentCheckpoint).getyDirection() * movementSpeed * getDelta();
-                updateYLoc(yPos);
 
             }
         }
@@ -218,19 +215,13 @@ public abstract class Enemy {
 
         currentHealth -= damage / armor;
 
-        if (currentHealth <= 0.0) {
+        if (currentHealth <= 0) {
 
             die();
 
+            visible = false;
+
         }
-    }
-
-    public void updateXLoc(float xPos) {
-        this.xLoc = (int) xPos / PlayMap.tileSize;
-    }
-
-    public void updateYLoc(float yPos) {
-        this.yLoc = (int) yPos / PlayMap.tileSize;
     }
 
     private void die() {
@@ -239,6 +230,10 @@ public abstract class Enemy {
 
     public boolean isAlive() {
         return alive;
+    }
+
+    public boolean isVisible() {
+        return visible;
     }
 
     public double getCurrentHealth() {
@@ -269,15 +264,11 @@ public abstract class Enemy {
         return yPos;
     }
 
-    public int getxLoc() {
-        return xLoc;
+    public int getXDirection() {
+        return directions[0];
     }
 
-    public int getyLoc() {
-        return yLoc;
-    }
-
-    public int[] getDirections() {
-        return directions;
+    public int getYDirection() {
+        return directions[1];
     }
 }

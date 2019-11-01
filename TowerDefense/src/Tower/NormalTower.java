@@ -1,7 +1,7 @@
 package Tower;
 
 public class NormalTower extends Tower {
-    //
+
     private static double fireRange = 48 * Math.sqrt(13);
     private static double damage = 25;
     private static float reloadTime = 0.6f;
