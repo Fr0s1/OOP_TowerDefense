@@ -57,13 +57,16 @@ public class Projectile {
     public void move() {
         // Kiểm tra xem đạn đã trúng quân địch
         if (Math.abs(xLoc - xDest) <= PlayMap.tileSize / 3 && Math.abs(yLoc - yDest) <= PlayMap.tileSize / 3) {
+
             arrivedAtTarget = true;
             targetEnemy.takeDamage(damage);
 
         } else {
+
             xLoc += speed * Math.cos(angleOfProjectileInRadians());
 
             yLoc += speed * Math.sin(angleOfProjectileInRadians());
+
         }
     }
 

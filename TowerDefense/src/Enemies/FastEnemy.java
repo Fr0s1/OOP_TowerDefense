@@ -3,6 +3,7 @@ import Map.PlayMap;
 
 
 public class FastEnemy extends Enemy {
+
     private static double movementSpeed = 100;
     private static EnemyType type = EnemyType.FAST;
     private static int reward = 50;

@@ -3,6 +3,7 @@ package Enemies;
 import Map.PlayMap;
 
 public class TankerEnemy extends Enemy {
+
     private static double movementSpeed = 40;
     private static Enemy.EnemyType type = EnemyType.TANKER;
     private static int reward = 50;

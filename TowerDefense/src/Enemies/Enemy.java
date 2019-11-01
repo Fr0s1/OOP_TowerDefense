@@ -29,11 +29,7 @@ public abstract class Enemy {
     private float xPos;
     private float yPos;
 
-    // Tọa độ theo mảng hai chiều
-    private int xLoc;
-    private int yLoc;
-
-    private ArrayList<Checkpoint> checkpoints; // Mảng lưu các ô ở góc
+    private ArrayList<Checkpoint> checkpoints; // Mảng lưu các ô ở góc trên đường đi
     private int currentCheckpoint; // Vị trí trong mảng
 
     private int[] directions;
@@ -43,6 +39,7 @@ public abstract class Enemy {
 
     private boolean first = true; // Kiểm tra địch xem có đang ở ô xuất phát hay không
     private boolean alive = true;
+    private boolean visible = true;
 
     public Enemy(EnemyType type, Tile spawnTile, double currentHealth, double movementSpeed, double armor, int reward) {
         this.type = type;
@@ -55,10 +52,8 @@ public abstract class Enemy {
         this.reward = reward;
 
         this.spawnTile = spawnTile;
-        this.xLoc = spawnTile.getX();
-        this.yLoc = spawnTile.getY();
-        this.xPos = xLoc * PlayMap.tileSize;
-        this.yPos = yLoc * PlayMap.tileSize;
+        this.xPos = spawnTile.getX() * PlayMap.tileSize;
+        this.yPos = spawnTile.getY() * PlayMap.tileSize;
 
         this.checkpoints = new ArrayList<>();
         this.currentCheckpoint = 0;
@@ -69,66 +64,43 @@ public abstract class Enemy {
         findAllCheckpoints(); // Thêm vào mảng tất cả các ô ở góc
     }
 
-    // Tìm hết tất cả các ô ở góc
-    private void findAllCheckpoints() {
-        checkpoints.add(findNextCheckpoint(spawnTile, directions = findNextDirection(spawnTile)));
+    // Hàm tìm hướng đi tiếp theo ở ô đường đi bất kì
+    private int[] findNextDirection(Tile currentTile) {
 
-        int counter = 0;
-        boolean cont = true;
+        int[] dir = new int[2];
 
-        while (cont) {
-            int[] currentDirections = findNextDirection(checkpoints.get(counter).getTile());
+        Tile u = PlayMap.getTile(currentTile.getX(), currentTile.getY() - 1);
+        Tile r = PlayMap.getTile(currentTile.getX() + 1, currentTile.getY());
+        Tile d = PlayMap.getTile(currentTile.getX(), currentTile.getY() + 1);
+        Tile l = PlayMap.getTile(currentTile.getX() - 1, currentTile.getY());
 
-            // Check if a next direction/checkpoint exists,
-            if (currentDirections[0] == 2 || counter == 20) {
-                cont = false;
-            } else {
-                checkpoints.add(findNextCheckpoint(checkpoints.get(counter).getTile(),
-                        directions = findNextDirection(checkpoints.get(counter).getTile())));
-            }
-            counter++;
-        }
-    }
+        if (currentTile.getType() == u.getType() && directions[1] != 1) {
 
-    private boolean checkpointReached() {
-        boolean reached = false;
+            dir[0] = 0;
+            dir[1] = -1;
 
-        Tile nextCheckpoint = checkpoints.get(currentCheckpoint).getTile();
+        } else if (currentTile.getType() == r.getType() && directions[0] != -1) {
 
-        // Check if position reached tile within variance of 3 (arbitrary):
+            dir[0] = 1;
+            dir[1] = 0;
 
-        if (xPos > nextCheckpoint.getXPixel() - 3 && xPos < nextCheckpoint.getXPixel() + 3
-                && yPos > nextCheckpoint.getYPixel() - 3 && yPos < nextCheckpoint.getYPixel() + 3) {
-            reached = true;
+        } else if (currentTile.getType() == d.getType() && directions[1] != -1) {
 
-            xPos = nextCheckpoint.getXPixel();
-            updateXLoc(xPos);
+            dir[0] = 0;
+            dir[1] = 1;
 
-            yPos = nextCheckpoint.getYPixel();
-            updateYLoc(yPos);
-        }
+        } else if (currentTile.getType() == l.getType() && directions[0] != 1) {
 
-        return reached;
-    }
+            dir[0] = -1;
+            dir[1] = 0;
 
-    public void move() {
-        if (first) {
-            first = false;
         } else {
-            if (checkpointReached()) {
-                if (currentCheckpoint == checkpoints.size() - 1) {
-                    die();
-                } else {
-                    currentCheckpoint++;
-                }
-            } else {
-                xPos += checkpoints.get(currentCheckpoint).getxDirection() * movementSpeed * getDelta();
-                updateXLoc(yPos);
 
-                yPos += checkpoints.get(currentCheckpoint).getyDirection() * movementSpeed * getDelta();
-                updateYLoc(yPos);
-            }
+            dir[0] = dir[1] = 2;
+
         }
+
+        return dir;
     }
 
     // Tìm ô ở góc từ 1 ô đường đi
@@ -141,16 +113,20 @@ public abstract class Enemy {
         int counter = 1;
 
         while (!found) {
+
             if (currentTile.getX() + dir[0] * counter == PlayMap.getWidthOfMap() || currentTile.getY() + dir[1] * counter == PlayMap.getHeightOfMap() || currentTile.getType() !=
-                    PlayMap.getTile(currentTile.getX() + dir[0] * counter,
-                            currentTile.getY() + dir[1] * counter).getType()) {
+                    PlayMap.getTile(currentTile.getX() + dir[0] * counter, currentTile.getY() + dir[1] * counter).getType()) {
+
                 found = true;
+
                 counter -= 1;
-                next = PlayMap.getTile(currentTile.getX() + dir[0] * counter,
-                        currentTile.getY() + dir[1] * counter);
+
+                next = PlayMap.getTile(currentTile.getX() + dir[0] * counter, currentTile.getY() + dir[1] * counter);
+
             }
 
             counter++;
+
         }
 
         c = new Checkpoint(next, dir[0], dir[1]);
@@ -158,46 +134,93 @@ public abstract class Enemy {
         return c;
     }
 
-    // Hàm tìm hướng đi tiếp theo ở ô đường đi bất kì
-    private int[] findNextDirection(Tile currentTile) {
-        int[] dir = new int[2];
+    // Tìm hết tất cả các ô ở góc
+    private void findAllCheckpoints() {
 
-        Tile u = PlayMap.getTile(currentTile.getX(), currentTile.getY() - 1);
-        Tile r = PlayMap.getTile(currentTile.getX() + 1, currentTile.getY());
-        Tile d = PlayMap.getTile(currentTile.getX(), currentTile.getY() + 1);
-        Tile l = PlayMap.getTile(currentTile.getX() - 1, currentTile.getY());
+        checkpoints.add(findNextCheckpoint(spawnTile, directions = findNextDirection(spawnTile)));
 
-        if (currentTile.getType() == u.getType() && directions[1] != 1) {
-            dir[0] = 0;
-            dir[1] = -1;
-        } else if (currentTile.getType() == r.getType() && directions[0] != -1) {
-            dir[0] = 1;
-            dir[1] = 0;
-        } else if (currentTile.getType() == d.getType() && directions[1] != -1) {
-            dir[0] = 0;
-            dir[1] = 1;
-        } else if (currentTile.getType() == l.getType() && directions[0] != 1) {
-            dir[0] = -1;
-            dir[1] = 0;
-        } else {
-            dir[0] = dir[1] = 2;
+        int counter = 0;
+        boolean cont = true;
+
+        while (cont) {
+            int[] currentDirections = findNextDirection(checkpoints.get(counter).getTile());
+
+            // Check if a next direction/checkpoint exists,
+            if (currentDirections[0] == 2 || counter == 20) {
+
+                cont = false;
+
+            } else {
+
+                checkpoints.add(findNextCheckpoint(checkpoints.get(counter).getTile(), directions = findNextDirection(checkpoints.get(counter).getTile())));
+
+            }
+
+            counter++;
+
+        }
+    }
+
+    private boolean checkpointReached() {
+        boolean reached = false;
+
+        Tile nextCheckpoint = checkpoints.get(currentCheckpoint).getTile();
+
+        // Check if position reached tile within variance of 3 (arbitrary):
+
+        if (xPos > nextCheckpoint.getXPixel() - 5 && xPos < nextCheckpoint.getXPixel() + 5
+                && yPos > nextCheckpoint.getYPixel() - 5 && yPos < nextCheckpoint.getYPixel() + 5) {
+
+            reached = true;
+
+            xPos = nextCheckpoint.getXPixel();
+
+            yPos = nextCheckpoint.getYPixel();
+
         }
 
-        return dir;
+        return reached;
     }
 
-    public void updateXLoc(float xPos) {
-        this.xLoc = (int) xPos / PlayMap.tileSize;
+    public void move() {
+        if (first) {
+
+            first = false;
+
+        } else {
+
+            if (checkpointReached()) {
+
+                if (currentCheckpoint == checkpoints.size() - 1) {
+
+                    visible = false;
+
+                } else {
+
+                    currentCheckpoint++;
+                }
+
+            } else {
+
+                xPos += checkpoints.get(currentCheckpoint).getxDirection() * movementSpeed * getDelta();
+
+                yPos += checkpoints.get(currentCheckpoint).getyDirection() * movementSpeed * getDelta();
+
+            }
+        }
     }
 
-    public void updateYLoc(float yPos) {
-        this.yLoc = (int) yPos / PlayMap.tileSize;
-    }
 
     public void takeDamage(double damage) {
+
         currentHealth -= damage / armor;
-        if (currentHealth <= 0.0) {
+
+        if (currentHealth <= 0) {
+
             die();
+
+            visible = false;
+
         }
     }
 
@@ -207,6 +230,10 @@ public abstract class Enemy {
 
     public boolean isAlive() {
         return alive;
+    }
+
+    public boolean isVisible() {
+        return visible;
     }
 
     public double getCurrentHealth() {
@@ -237,11 +264,11 @@ public abstract class Enemy {
         return yPos;
     }
 
-    public int getxLoc() {
-        return xLoc;
+    public int getXDirection() {
+        return directions[0];
     }
 
-    public int getyLoc() {
-        return yLoc;
+    public int getYDirection() {
+        return directions[1];
     }
 }

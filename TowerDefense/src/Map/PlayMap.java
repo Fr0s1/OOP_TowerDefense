@@ -13,17 +13,29 @@ public class PlayMap {
 
         // Create 2D Tile Map from 2D array
         for (int y = 0; y < mapTile.length; y++) {
+
             for (int x = 0; x < mapTile[0].length; x++) {
+
                 if (CustomMap.map1[y][x] == 0) {
+
                     mapTile[y][x] = new TowerTile(x, y);
+
                 } else if (CustomMap.map1[y][x] == 1) {
+
                     mapTile[y][x] = new RoadTile(x, y);
+
                 } else if (CustomMap.map1[y][x] == 2) {
+
                     mapTile[y][x] = new RoadTile(x, y);
+
                     startTile = new RoadTile(x, y);
+
                 } else {
+
                     mapTile[y][x] = new RoadTile(x, y);
+
                     exitTile = new RoadTile(x, y);
+
                 }
             }
         }
@@ -35,6 +47,11 @@ public class PlayMap {
         } else {
             return new NullTile();
         }
+    }
+
+    public static boolean buildableTile(int x, int y) {
+        if (getTile(x, y).getType() == Tile.TileType.TOWER) return true;
+        else return false;
     }
 
     public static int getWidthOfMap() {
