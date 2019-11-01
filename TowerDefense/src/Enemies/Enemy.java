@@ -168,8 +168,8 @@ public abstract class Enemy {
 
         // Check if position reached tile within variance of 3 (arbitrary):
 
-        if (xPos > nextCheckpoint.getXPixel() - 5 && xPos < nextCheckpoint.getXPixel() + 5
-                && yPos > nextCheckpoint.getYPixel() - 5 && yPos < nextCheckpoint.getYPixel() + 5) {
+        if (xPos > nextCheckpoint.getXPixel() - 3 && xPos < nextCheckpoint.getXPixel() + 3
+                && yPos > nextCheckpoint.getYPixel() - 3 && yPos < nextCheckpoint.getYPixel() + 3) {
 
             reached = true;
 
