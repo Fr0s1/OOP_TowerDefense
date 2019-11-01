@@ -7,6 +7,7 @@ import Map.PlayMap;
 import Tile.RoadTile;
 import Tower.*;
 import com.sun.org.apache.bcel.internal.generic.IADD;
+import javafx.scene.Scene;
 import org.newdawn.slick.*;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
@@ -30,16 +31,8 @@ public class PlayScreen extends BasicGameState {
     Image[] normalEnemyWalkImages = new Image[19];
     Animation normalEnemyWalkAnimation;
 
-//    Image[] normalEnemyDeath = new Image[19];
-//    Animation normalEnemyDeathAnimation;
-//
-//    Image[] projectileHitImages = new Image[8];
-//    Animation projectileHasArrived;
-
-    // Enemies images:
-    Image fastEnemy;
-    Image tankEnemy;
-    Image bossEnemy;
+    Image[] fastEnemyWalkImages = new Image[19];
+    Animation fastEnemyWalkAnimation;
 
     EnemyWave wave = new EnemyWave(10);
 
@@ -52,11 +45,12 @@ public class PlayScreen extends BasicGameState {
     Image machinegunTowerProjectile;
     Image sniperTowerProjectile;
 
-    Tower t = new NormalTower(9, 3);
+    Tower t = new MachineGunTower(9, 3);
     Tower t1 = new NormalTower(3, 3);
     Tower t3 = new SniperTower(3, 11);
 
     ArrayList<Projectile> projectiles;
+    ArrayList<Tower> towersOnMap = new ArrayList<Tower>();
 
     Graphics g;
 
@@ -79,17 +73,10 @@ public class PlayScreen extends BasicGameState {
         towerTile = new Image("graphics/MapTile/grass_tile.png"); // Ảnh tháp
 
 
-        // Load ảnh quân địch
-        fastEnemy = new Image("graphics/Enemies/fast.png");
-        tankEnemy = new Image("graphics/Enemies/tanker.png");
-        bossEnemy = new Image("graphics/Enemies/boss.png");
-
-
         normalTowerGraphic = new Image("graphics/Towers/normalTower48.png");
         machinegunTowerGraphic = new Image("graphics/Towers/machineGunTower48.png");
         sniperTowerGraphic = new Image("graphics/Towers/sniperTower48.png");
         towerBase = new Image("graphics/Towers/towerBase48.png");
-
 
         normalTowerProjectile = new Image("graphics/Projectiles/normalTowerProjectile.png");
         machinegunTowerProjectile = new Image("graphics/Projectiles/machineGunTowerProjectile.png");
@@ -98,9 +85,11 @@ public class PlayScreen extends BasicGameState {
         addTowersInMap();
 
         loadNormalEnemyWalkAnimation();
+        loadFastEnemyWalkAnimation();
 //        loadNormalEnemyDeathAnimation();
 //
 //        loadProjectileAnimation();
+
     }
 
     @Override
@@ -113,6 +102,7 @@ public class PlayScreen extends BasicGameState {
         drawTowers();
 
         drawProjectiles();
+
     }
 
     @Override
@@ -120,9 +110,11 @@ public class PlayScreen extends BasicGameState {
 
         wave.update();
 
-        updateTower(Tower.towersList);
+        updateTower(towersOnMap);
 
         updateProjectileList();
+
+        normalEnemyWalkAnimation.update(delta);
     }
 
 
@@ -130,25 +122,23 @@ public class PlayScreen extends BasicGameState {
 
         for (Enemy currentEnemy : EnemyWave.enemyList) {
 
-            if (currentEnemy.isAlive()) {
+            if (currentEnemy.isVisible()) {
 
                 drawHealthBar(currentEnemy);
 
                 if (currentEnemy.getType() == Enemy.EnemyType.NORMAL) {
 
-                    if (currentEnemy.getDirections()[0] == -1) {
-
-                        normalEnemyWalkAnimation.getCurrentFrame().getFlippedCopy(true, false).draw(currentEnemy.getxPos(), currentEnemy.getyPos());
+                    if (currentEnemy.getXDirection() == -1) {
+                        normalEnemyWalkAnimation.getCurrentFrame().setRotation(90);
+                        normalEnemyWalkAnimation.getCurrentFrame().draw(currentEnemy.getxPos(), currentEnemy.getyPos());
 
                     } else {
-
-                        normalEnemyWalkAnimation.draw(currentEnemy.getxPos(), currentEnemy.getyPos());
-
+                        normalEnemyWalkAnimation.getCurrentFrame().draw(currentEnemy.getxPos(), currentEnemy.getyPos());
                     }
 
                 } else {
 
-                    fastEnemy.draw(currentEnemy.getxPos(), currentEnemy.getyPos());
+                    fastEnemyWalkAnimation.draw(currentEnemy.getxPos(), currentEnemy.getyPos());
 
                 }
 
@@ -191,7 +181,7 @@ public class PlayScreen extends BasicGameState {
 
     public void drawTowers() {
 
-        for (Tower tower : Tower.towersList) {
+        for (Tower tower : towersOnMap) {
             Image img;
 
             switch (tower.getType()) {
@@ -247,15 +237,14 @@ public class PlayScreen extends BasicGameState {
 
 
     public void addTowersInMap() {
-        Tower.towersList.add(t);
-        Tower.towersList.add(t1);
-        Tower.towersList.add(t3);
+        towersOnMap.add(t);
+        towersOnMap.add(t1);
+        towersOnMap.add(t3);
     }
 
+    public void updateTower(ArrayList<Tower> towersOnMap) {
 
-    public void updateTower(ArrayList<Tower> towersList) {
-
-        for (Tower tower : towersList) {
+        for (Tower tower : towersOnMap) {
 
             tower.addEnemiesInRange(EnemyWave.enemyList);
 
@@ -277,11 +266,7 @@ public class PlayScreen extends BasicGameState {
 
         for (Projectile p : projectiles) {
 
-            if (p != null) {
-
-                p.move();
-
-            }
+            p.move();
 
         }
 
@@ -300,37 +285,28 @@ public class PlayScreen extends BasicGameState {
             }
 
             normalEnemyWalkImages[i] = new Image(path);
-
         }
 
         normalEnemyWalkAnimation = new Animation(normalEnemyWalkImages, 50);
     }
 
-//    public void loadNormalEnemyDeathAnimation() throws SlickException {
-//
-//        for (int i = 0; i < 19; i++) {
-//            String path = "graphics/Enemies/NormalEnemyAnimation/2_enemies_1_die_0";
-//            if (i <= 9) {
-//                path += "0" + i + ".png";
-//            } else {
-//                path += i + ".png";
-//            }
-//            normalEnemyDeath[i] = new Image(path);
-//        }
-//
-//        normalEnemyDeathAnimation = new Animation(normalEnemyWalkImages, 90);
-//    }
-//
-//    public void loadProjectileAnimation() throws SlickException {
-//
-//        for (int i = 0; i < 7; i++) {
-//            String path = "graphics/Projectiles/Hit_animation/";
-//            path += i + ".png";
-//            projectileHitImages[i] = new Image(path);
-//        }
-//
-//        projectileHasArrived = new Animation(projectileHitImages, 50000);
-//    }
+    public void loadFastEnemyWalkAnimation() throws SlickException {
+
+        for (int i = 0; i < 19; i++) {
+
+            String path = "graphics/Enemies/FastAnimation/1_enemies_1_run_0";
+
+            if (i <= 9) {
+                path += "0" + i + ".png";
+            } else {
+                path += i + ".png";
+            }
+
+            fastEnemyWalkImages[i] = new Image(path);
+        }
+
+        fastEnemyWalkAnimation = new Animation(fastEnemyWalkImages, 50);
+    }
 
     public static double getDelta() {
         return delta;

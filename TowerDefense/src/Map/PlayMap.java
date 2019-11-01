@@ -49,6 +49,11 @@ public class PlayMap {
         }
     }
 
+    public static boolean buildableTile(int x, int y) {
+        if (getTile(x, y).getType() == Tile.TileType.TOWER) return true;
+        else return false;
+    }
+
     public static int getWidthOfMap() {
         return mapTile[0].length;
     }
