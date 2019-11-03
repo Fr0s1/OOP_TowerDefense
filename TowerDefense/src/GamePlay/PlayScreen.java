@@ -95,7 +95,7 @@ public class PlayScreen extends BasicGameState {
 
         addTowersInMap();
 
-        themeSong.play();
+//        themeSong.play();
     }
 
     @Override
