@@ -19,4 +19,12 @@ public class Player {
     public void decreaseLife() {
         this.currentLife -= 1;
     }
+
+    public int getLives() {
+        return currentLife;
+    }
+
+    public int getCurrentMoney() {
+        return currentMoney;
+    }
 }

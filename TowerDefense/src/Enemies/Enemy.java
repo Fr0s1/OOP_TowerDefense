@@ -217,15 +217,11 @@ public abstract class Enemy {
 
         if (currentHealth <= 0) {
 
-            die();
+            alive = false;
 
             visible = false;
 
         }
-    }
-
-    private void die() {
-        alive = false;
     }
 
     public boolean isAlive() {
@@ -265,10 +261,10 @@ public abstract class Enemy {
     }
 
     public int getXDirection() {
-        return directions[0];
+        return checkpoints.get(currentCheckpoint).getxDirection();
     }
 
     public int getYDirection() {
-        return directions[1];
+        return checkpoints.get(currentCheckpoint).getyDirection();
     }
 }

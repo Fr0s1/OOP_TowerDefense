@@ -129,7 +129,7 @@ public abstract class Tower {
         }
     }
 
-    public Projectile shoot(Enemy targetEnemy) {
+    public Projectile attackEnemy(Enemy targetEnemy) {
 
         if (canAttack()) {
 
