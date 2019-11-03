@@ -40,6 +40,7 @@ public abstract class Enemy {
     private boolean first = true; // Kiểm tra địch xem có đang ở ô xuất phát hay không
     private boolean alive = true;
     private boolean visible = true;
+    private boolean reachedExit = false;
 
     public Enemy(EnemyType type, Tile spawnTile, double currentHealth, double movementSpeed, double armor, int reward) {
         this.type = type;
@@ -195,6 +196,8 @@ public abstract class Enemy {
 
                     visible = false;
 
+                    reachedExit = true;
+
                 } else {
 
                     currentCheckpoint++;
@@ -217,15 +220,11 @@ public abstract class Enemy {
 
         if (currentHealth <= 0) {
 
-            die();
+            alive = false;
 
             visible = false;
 
         }
-    }
-
-    private void die() {
-        alive = false;
     }
 
     public boolean isAlive() {
@@ -235,6 +234,8 @@ public abstract class Enemy {
     public boolean isVisible() {
         return visible;
     }
+
+    public boolean hasReachedExit() { return reachedExit; }
 
     public double getCurrentHealth() {
         return currentHealth;
@@ -265,10 +266,10 @@ public abstract class Enemy {
     }
 
     public int getXDirection() {
-        return directions[0];
+        return checkpoints.get(currentCheckpoint).getxDirection();
     }
 
     public int getYDirection() {
-        return directions[1];
+        return checkpoints.get(currentCheckpoint).getyDirection();
     }
 }

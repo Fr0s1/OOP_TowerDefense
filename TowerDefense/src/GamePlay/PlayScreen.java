@@ -6,35 +6,25 @@ import Map.CustomMap;
 import Map.PlayMap;
 import Tile.RoadTile;
 import Tower.*;
-import com.sun.org.apache.bcel.internal.generic.IADD;
-import javafx.scene.Scene;
 import org.newdawn.slick.*;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 public class PlayScreen extends BasicGameState {
-    public static float delta = 33 * 0.001f; // Giá trị của delta trong hàm update(), tính theo giây = 0.033 giây
+    public static float delta = 33 * 0.001f; // Giá trị của delta trong hàm update() (đơn vị là millisecond), đổi sang giây = 0.033 giây
 
     private PlayMap playMap = new PlayMap(CustomMap.map1);
 
     // Map tile image
+    Image gameOverImage;
+
     Image roadTile;
     Image towerTile;
-
-    Image[] normalEnemyWalkImages = new Image[19];
-    Animation normalEnemyWalkAnimation;
-
-    Image[] fastEnemyWalkImages = new Image[19];
-    Animation fastEnemyWalkAnimation;
-
-    EnemyWave wave = new EnemyWave(10);
 
     Image normalTowerGraphic;
     Image machinegunTowerGraphic;
@@ -45,6 +35,21 @@ public class PlayScreen extends BasicGameState {
     Image machinegunTowerProjectile;
     Image sniperTowerProjectile;
 
+
+    Image[] normalEnemyWalkImages = new Image[19];
+    Animation normalEnemyWalkAnimation;
+
+    Image[] fastEnemyWalkImages = new Image[19];
+    Animation fastEnemyWalkAnimation;
+
+    Image[] tankEnemyWalkImages = new Image[19];
+    Animation tankEnemyWalkAnimation;
+
+    Image[] bossEnemyWalkImages = new Image[19];
+    Animation bossEnemyWalkAnimation;
+
+    EnemyWave wave = new EnemyWave();
+
     Tower t = new MachineGunTower(9, 3);
     Tower t1 = new NormalTower(3, 3);
     Tower t3 = new SniperTower(3, 11);
@@ -53,6 +58,14 @@ public class PlayScreen extends BasicGameState {
     ArrayList<Tower> towersOnMap = new ArrayList<Tower>();
 
     Graphics g;
+
+    Player player1;
+
+    int currentLevel = 1;
+
+    boolean gameOver = false;
+
+    Music themeSong;
 
     public PlayScreen(int state) {
 
@@ -66,30 +79,23 @@ public class PlayScreen extends BasicGameState {
     @Override
     public void init(GameContainer gameContainer, StateBasedGame stateBasedGame) throws SlickException {
         g = new Graphics();
+
+        themeSong = new Music("sound_effect/Overture1928.wav");
+
         projectiles = new ArrayList<>();
 
-        // Load các file ảnh đại diện cho đối tượng tương ứng
-        roadTile = new Image("graphics/MapTile/sand_tile.png"); // Ảnh đường đi
-        towerTile = new Image("graphics/MapTile/grass_tile.png"); // Ảnh tháp
+        player1 = new Player();
 
-
-        normalTowerGraphic = new Image("graphics/Towers/normalTower48.png");
-        machinegunTowerGraphic = new Image("graphics/Towers/machineGunTower48.png");
-        sniperTowerGraphic = new Image("graphics/Towers/sniperTower48.png");
-        towerBase = new Image("graphics/Towers/towerBase48.png");
-
-        normalTowerProjectile = new Image("graphics/Projectiles/normalTowerProjectile.png");
-        machinegunTowerProjectile = new Image("graphics/Projectiles/machineGunTowerProjectile.png");
-        sniperTowerProjectile = new Image("graphics/Projectiles/sniperTowerProjectile.png");
-
-        addTowersInMap();
+        loadImages();
 
         loadNormalEnemyWalkAnimation();
         loadFastEnemyWalkAnimation();
-//        loadNormalEnemyDeathAnimation();
-//
-//        loadProjectileAnimation();
+        loadTankEnemyWalkAnimation();
+        loadBossEnemyWalkAnimation();
 
+        addTowersInMap();
+
+//        themeSong.play();
     }
 
     @Override
@@ -97,48 +103,103 @@ public class PlayScreen extends BasicGameState {
 
         drawMap();
 
-        drawEnemyWave();
-
         drawTowers();
 
-        drawProjectiles();
+        if (!gameOver) {
+            drawEnemyWave();
+
+            drawProjectiles();
+
+        } else {
+
+            gameOverImage.draw(PlayMap.getWidthOfMapInPixel() / 2 - gameOverImage.getWidth() / 2, PlayMap.getHeightOfMapInPixel() / 2 - gameOverImage.getHeight() / 2);
+
+        }
+
+        graphics.drawString(String.valueOf(player1.getCurrentLife()), 0, 0);
+        graphics.drawString(String.valueOf(player1.getCurrentMoney()), 48, 0);
 
     }
 
     @Override
     public void update(GameContainer gameContainer, StateBasedGame stateBasedGame, int delta) throws SlickException {
 
-        wave.update();
+        isGameOver();
 
-        updateTower(towersOnMap);
+        if (!gameOver) {
 
-        updateProjectileList();
+            wave.update(currentLevel);
+            isWaveFinished();
 
-        normalEnemyWalkAnimation.update(delta);
+            updateTower(towersOnMap);
+            updateProjectileList();
+
+            normalEnemyWalkAnimation.update(delta);
+            fastEnemyWalkAnimation.update(delta);
+            tankEnemyWalkAnimation.update(delta);
+            bossEnemyWalkAnimation.update(delta);
+        }
     }
 
+    public void isGameOver() {
+        if (Player.getCurrentLife() == 0) {
+            gameOver = true;
+        }
+    }
+
+    public void isWaveFinished() {
+        if (Player.getCurrentLife() > 0 && EnemyWave.enemyQueue.size() == 0 && EnemyWave.activeEnemyList.size() == 0) {
+            wave.setRespawn();
+            currentLevel++;
+        }
+    }
+
+    // Hàm vẽ sân chơi theo mảng 2 chiều đại diện cho map:
+    public void drawMap() {
+        for (int y = 0; y < playMap.getHeightOfMap(); y++) {
+            for (int x = 0; x < playMap.getWidthOfMap(); x++) {
+                if (PlayMap.mapTile[y][x] instanceof RoadTile) {
+                    roadTile.draw(x * roadTile.getWidth(), y * roadTile.getHeight());
+                } else {
+                    towerTile.draw(x * roadTile.getWidth(), y * roadTile.getHeight());
+                }
+            }
+        }
+    }
 
     public void drawEnemyWave() {
 
-        for (Enemy currentEnemy : EnemyWave.enemyList) {
+        for (Enemy currentEnemy : EnemyWave.activeEnemyList) {
 
             if (currentEnemy.isVisible()) {
 
                 drawHealthBar(currentEnemy);
 
-                if (currentEnemy.getType() == Enemy.EnemyType.NORMAL) {
+                Animation a;
 
-                    if (currentEnemy.getXDirection() == -1) {
-                        normalEnemyWalkAnimation.getCurrentFrame().setRotation(90);
-                        normalEnemyWalkAnimation.getCurrentFrame().draw(currentEnemy.getxPos(), currentEnemy.getyPos());
+                switch (currentEnemy.getType()) {
+                    case FAST:
+                        a = fastEnemyWalkAnimation;
+                        break;
+                    case NORMAL:
+                        a = normalEnemyWalkAnimation;
+                        break;
+                    case TANKER:
+                        a = tankEnemyWalkAnimation;
+                        break;
+                    default:
+                        a = bossEnemyWalkAnimation;
+                        break;
+                }
 
-                    } else {
-                        normalEnemyWalkAnimation.getCurrentFrame().draw(currentEnemy.getxPos(), currentEnemy.getyPos());
-                    }
+
+                if (currentEnemy.getXDirection() == -1) {
+
+                    a.getCurrentFrame().getFlippedCopy(true, false).draw(currentEnemy.getxPos(), currentEnemy.getyPos());
 
                 } else {
 
-                    fastEnemyWalkAnimation.draw(currentEnemy.getxPos(), currentEnemy.getyPos());
+                    a.getCurrentFrame().draw(currentEnemy.getxPos(), currentEnemy.getyPos());
 
                 }
 
@@ -166,19 +227,6 @@ public class PlayScreen extends BasicGameState {
 
     }
 
-    // Hàm vẽ sân chơi theo mảng 2 chiều đại diện cho map:
-    public void drawMap() {
-        for (int y = 0; y < playMap.getHeightOfMap(); y++) {
-            for (int x = 0; x < playMap.getWidthOfMap(); x++) {
-                if (PlayMap.mapTile[y][x] instanceof RoadTile) {
-                    roadTile.draw(x * roadTile.getWidth(), y * roadTile.getHeight());
-                } else {
-                    towerTile.draw(x * roadTile.getWidth(), y * roadTile.getHeight());
-                }
-            }
-        }
-    }
-
     public void drawTowers() {
 
         for (Tower tower : towersOnMap) {
@@ -203,7 +251,6 @@ public class PlayScreen extends BasicGameState {
         }
 
     }
-
 
     public void drawProjectiles() {
 
@@ -235,7 +282,6 @@ public class PlayScreen extends BasicGameState {
         }
     }
 
-
     public void addTowersInMap() {
         towersOnMap.add(t);
         towersOnMap.add(t1);
@@ -246,11 +292,11 @@ public class PlayScreen extends BasicGameState {
 
         for (Tower tower : towersOnMap) {
 
-            tower.addEnemiesInRange(EnemyWave.enemyList);
+            tower.addEnemiesInRange(EnemyWave.activeEnemyList);
 
             tower.setTarget();
 
-            Projectile newProjectile = tower.shoot(tower.getTargetEnemy());
+            Projectile newProjectile = tower.attackEnemy(tower.getTargetEnemy());
 
             if (newProjectile != null) {
                 projectiles.add(newProjectile);
@@ -272,6 +318,28 @@ public class PlayScreen extends BasicGameState {
 
     }
 
+    // Load các file ảnh tháp và bản đồ
+    public void loadImages() throws SlickException {
+
+        gameOverImage = new Image("graphics/GameOver.jpg");
+
+
+        roadTile = new Image("graphics/MapTile/sand_tile.png"); // Ảnh đường đi
+        towerTile = new Image("graphics/MapTile/grass_tile.png"); // Ảnh tháp
+
+
+        normalTowerGraphic = new Image("graphics/Towers/normalTower48.png");
+        machinegunTowerGraphic = new Image("graphics/Towers/machineGunTower48.png");
+        sniperTowerGraphic = new Image("graphics/Towers/sniperTower48.png");
+        towerBase = new Image("graphics/Towers/towerBase48.png");
+
+        normalTowerProjectile = new Image("graphics/Projectiles/normalTowerProjectile.png");
+        machinegunTowerProjectile = new Image("graphics/Projectiles/machineGunTowerProjectile.png");
+        sniperTowerProjectile = new Image("graphics/Projectiles/sniperTowerProjectile.png");
+
+    }
+
+    // Load hiệu ứng hình ảnh đi các quân địch
     public void loadNormalEnemyWalkAnimation() throws SlickException {
 
         for (int i = 0; i < 19; i++) {
@@ -306,6 +374,42 @@ public class PlayScreen extends BasicGameState {
         }
 
         fastEnemyWalkAnimation = new Animation(fastEnemyWalkImages, 50);
+    }
+
+    public void loadTankEnemyWalkAnimation() throws SlickException {
+
+        for (int i = 0; i < 19; i++) {
+
+            String path = "graphics/Enemies/TankerAnimation/6_enemies_1_walk_0";
+
+            if (i <= 9) {
+                path += "0" + i + ".png";
+            } else {
+                path += i + ".png";
+            }
+
+            tankEnemyWalkImages[i] = new Image(path);
+        }
+
+        tankEnemyWalkAnimation = new Animation(tankEnemyWalkImages, 50);
+    }
+
+    public void loadBossEnemyWalkAnimation() throws SlickException {
+
+        for (int i = 0; i < 19; i++) {
+
+            String path = "graphics/Enemies/BossAnimation/9_enemies_1_walk_0";
+
+            if (i <= 9) {
+                path += "0" + i + ".png";
+            } else {
+                path += i + ".png";
+            }
+
+            bossEnemyWalkImages[i] = new Image(path);
+        }
+
+        bossEnemyWalkAnimation = new Animation(bossEnemyWalkImages, 50);
     }
 
     public static double getDelta() {

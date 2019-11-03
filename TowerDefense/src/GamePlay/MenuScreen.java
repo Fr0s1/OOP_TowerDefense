@@ -18,6 +18,7 @@ public class MenuScreen extends BasicGameState {
     Rectangle startButton;
     Rectangle exitButton;
 
+
     public MenuScreen(int state) {
     }
 
@@ -31,6 +32,7 @@ public class MenuScreen extends BasicGameState {
     public void init(GameContainer gameContainer, StateBasedGame stateBasedGame) throws SlickException {
         loadImage();
         createButton(gameContainer);
+//        themeSong.play();
     }
 
     @Override

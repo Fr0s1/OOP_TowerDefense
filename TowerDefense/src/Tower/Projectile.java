@@ -41,6 +41,7 @@ public class Projectile {
         this.targetEnemy = targetEnemy;
 
         this.projType = type;
+
         if (projType == ProjectileType.SNIPER_PROJECTILE) {
             speed = 30;
         }

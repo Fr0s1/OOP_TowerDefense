@@ -6,7 +6,7 @@ public class TankerEnemy extends Enemy {
 
     private static double movementSpeed = 40;
     private static Enemy.EnemyType type = EnemyType.TANKER;
-    private static int reward = 50;
+    private static int reward = 150;
     private static double health = 200;
     private static double armor = 3.0f;
 

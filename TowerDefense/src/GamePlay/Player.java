@@ -1,22 +1,30 @@
 package GamePlay;
 
 public class Player {
-    private static int startingLive = 15;
-    private static int startingMoney = 200;
+    private static final int startingLive = 15;
+    private static final int startingMoney = 200;
 
-    private int currentLife;
-    private int currentMoney;
+    private static int currentLife;
+    private static int currentMoney;
 
     public Player() {
         this.currentLife = startingLive;
         this.currentMoney = startingMoney;
     }
 
-    public void addMoney(int amount) {
-        this.currentMoney += amount;
+    public static void addMoney(int amount) {
+        currentMoney += amount;
     }
 
-    public void decreaseLife() {
-        this.currentLife -= 1;
+    public static void decreaseLife() {
+        currentLife -= 1;
+    }
+
+    public static int getCurrentLife() {
+        return currentLife;
+    }
+
+    public static int getCurrentMoney() {
+        return currentMoney;
     }
 }

@@ -1,85 +1,130 @@
 package Enemies;
 
-import GamePlay.PlayScreen;
+import GamePlay.Player;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class EnemyWave {
 
     int[][] enemyWave = {
-            {2, 1, 0, 0, 0},
-            {5, 2, 0, 0, 0},
-            {6, 2, 1, 0, 0},
-            {6, 3, 2, 2, 1},
-            {6, 3, 3, 3, 1},
-            {8, 4, 4, 4, 1},
-            {9, 5, 5, 5, 2},
-            {10, 6, 6, 6, 2},
-            {12, 6, 6, 7, 2},
-            {15, 6, 8, 8, 2},
-            {16, 6, 9, 9, 3},
-            {20, 8, 10, 10, 3}
+            {2, 1, 0, 0},
+            {5, 2, 0, 0},
+            {6, 2, 1, 0},
+            {6, 3, 2, 1},
+            {6, 3, 3, 2},
+            {8, 4, 4, 3},
+            {9, 5, 5, 4},
+            {10, 6, 6, 5},
+            {12, 6, 6, 6},
+            {15, 6, 8, 7},
+            {16, 6, 9, 8},
+            {20, 8, 10, 9},
     };
 
-    int level = 0;
+    public static Queue<Enemy> enemyQueue;
+    public static ArrayList<Enemy> activeEnemyList;
 
-    public static ArrayList<Enemy> enemyList;
+    public EnemyWave() {
 
-    static int i = 0;
+        enemyQueue = new LinkedList<>();
 
-    private float timeSinceLastSpawn, spawnTime;
-
-    public EnemyWave(float spawnTime) {
-
-        this.spawnTime = spawnTime;
-
-        timeSinceLastSpawn = 0;
-
-        enemyList = new ArrayList<>();
+        activeEnemyList = new ArrayList<>();
 
     }
 
-    public void update() {
+    boolean hasSpawn = false;
+    boolean addToQueue = false;
 
-        timeSinceLastSpawn += PlayScreen.delta * 10;
+    public void update(int currentLevel) {
 
-        if (timeSinceLastSpawn > spawnTime) {
+        if (!hasSpawn && currentLevel < 12) {
 
-            spawn();
-
-            timeSinceLastSpawn = 0;
-
+            spawn(currentLevel); // Thêm tất cả các quân địch trong một wave vào hàng chờ
+            addToQueue = true;
+            hasSpawn = true;
         }
 
-        for (int i = 0; i < enemyList.size(); i++) {
+        addEnemyToActiveList(); // Thêm quân địch để hiện thị trên bản đồ
 
-            if (enemyList.get(i).isAlive()) {
+        for (int i = 0; i < activeEnemyList.size(); i++) {
 
-                enemyList.get(i).move();
+            Enemy currentEnemy = activeEnemyList.get(i);
+            if (currentEnemy.isAlive()) {
+
+                currentEnemy.move();
+
+                if (currentEnemy.hasReachedExit()) {
+                    activeEnemyList.remove(i);
+                    Player.decreaseLife();
+                }
 
             } else {
 
-                enemyList.remove(i);
+                Player.addMoney(currentEnemy.getReward());
+
+                activeEnemyList.remove(i);
 
             }
         }
     }
 
-    private void spawn() {
-        if (enemyList.size() < 5) {
-            if (i++ % 2 == 0) {
-                enemyList.add(new NormalEnemy());
-            } else {
-                enemyList.add(new FastEnemy());
+    private void spawn(int currentLevel) {
+
+        for (int i = 0; i < 4; i++) {
+
+            for (int j = 1; j <= enemyWave[currentLevel - 1][i]; j++) {
+
+                switch (i) {
+                    case 0:
+                        enemyQueue.add(new NormalEnemy());
+                        break;
+
+                    case 1:
+                        enemyQueue.add(new FastEnemy());
+                        break;
+
+                    case 2:
+                        enemyQueue.add(new TankerEnemy());
+                        break;
+
+                    default:
+                        enemyQueue.add(new BossEnemy());
+                        break;
+                }
+
             }
-//            enemyList.add(new NormalEnemy());
+
         }
-//        enemyList.add(new NormalEnemy());
-//
-//        if (i++ % 2 == 0) {
-//            enemyList.add(new NormalEnemy());
-//        } else {
-//            enemyList.add(new FastEnemy());
-//        }
+
+    }
+
+    int tickCount = 0; // Biến đếm
+    int enemySpawnDelay = 20; // Để không add liên tiếp quân địch vào danh sách
+
+    public void addEnemyToActiveList() {
+
+        tickCount++;
+
+        if (tickCount > enemySpawnDelay) {
+
+            if (enemyQueue.size() > 0) {
+
+                EnemyWave.activeEnemyList.add(EnemyWave.enemyQueue.poll());
+
+            }
+
+            tickCount = 0;
+
+        }
+    }
+
+    public void setRespawn() {
+        hasSpawn = false;
+    }
+
+    public boolean hasAddToQueue() {
+        return addToQueue;
     }
 }
