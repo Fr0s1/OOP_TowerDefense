@@ -21,6 +21,8 @@ public class PlayScreen extends BasicGameState {
     private PlayMap playMap = new PlayMap(CustomMap.map1);
 
     // Map tile image
+    Image gameOverImage;
+
     Image roadTile;
     Image towerTile;
 
@@ -57,9 +59,13 @@ public class PlayScreen extends BasicGameState {
 
     Graphics g;
 
-    Music themeSong;
+    Player player1;
 
     int currentLevel = 1;
+
+    boolean gameOver = false;
+
+//    Music themeSong;
 
     public PlayScreen(int state) {
 
@@ -73,9 +79,14 @@ public class PlayScreen extends BasicGameState {
     @Override
     public void init(GameContainer gameContainer, StateBasedGame stateBasedGame) throws SlickException {
         g = new Graphics();
+
+//        themeSong = new Music("sound_effect/Overture1928.wav");
+
         projectiles = new ArrayList<>();
 
-        loadEnemiesAndTowersImage();
+        player1 = new Player();
+
+        loadImages();
 
         loadNormalEnemyWalkAnimation();
         loadFastEnemyWalkAnimation();
@@ -84,9 +95,7 @@ public class PlayScreen extends BasicGameState {
 
         addTowersInMap();
 
-        themeSong = new Music("sound_effect/Overture1928.wav");
-
-//        themeSong.loop();
+        themeSong.play();
     }
 
     @Override
@@ -94,37 +103,56 @@ public class PlayScreen extends BasicGameState {
 
         drawMap();
 
-//        drawMenu();
-
-        drawEnemyWave();
-
         drawTowers();
 
-        drawProjectiles();
+        if (!gameOver) {
+            drawEnemyWave();
+
+            drawProjectiles();
+
+        } else {
+
+            gameOverImage.draw(PlayMap.getWidthOfMapInPixel() / 2 - gameOverImage.getWidth() / 2, PlayMap.getHeightOfMapInPixel() / 2 - gameOverImage.getHeight() / 2);
+
+        }
+
+        graphics.drawString(String.valueOf(player1.getCurrentLife()), 0, 0);
+        graphics.drawString(String.valueOf(player1.getCurrentMoney()), 48, 0);
 
     }
 
     @Override
     public void update(GameContainer gameContainer, StateBasedGame stateBasedGame, int delta) throws SlickException {
 
-        wave.update(9);
+        isGameOver();
 
-        updateTower(towersOnMap);
-        updateProjectileList();
+        if (!gameOver) {
 
-        normalEnemyWalkAnimation.update(delta);
-        fastEnemyWalkAnimation.update(delta);
-        tankEnemyWalkAnimation.update(delta);
-        bossEnemyWalkAnimation.update(delta);
+            wave.update(currentLevel);
+            isWaveFinished();
+
+            updateTower(towersOnMap);
+            updateProjectileList();
+
+            normalEnemyWalkAnimation.update(delta);
+            fastEnemyWalkAnimation.update(delta);
+            tankEnemyWalkAnimation.update(delta);
+            bossEnemyWalkAnimation.update(delta);
+        }
     }
 
-//    public void drawMenu() {
-//        for (int y = 0; y < Game.WindowHeight; y += 64) {
-//            for (int x = 15 * 48; x < Game.WindowWidth; x += 64) {
-//                menuTile.draw(x, y);
-//            }
-//        }
-//    }
+    public void isGameOver() {
+        if (Player.getCurrentLife() == 0) {
+            gameOver = true;
+        }
+    }
+
+    public void isWaveFinished() {
+        if (Player.getCurrentLife() > 0 && EnemyWave.enemyQueue.size() == 0 && EnemyWave.activeEnemyList.size() == 0) {
+            wave.setRespawn();
+            currentLevel++;
+        }
+    }
 
     // Hàm vẽ sân chơi theo mảng 2 chiều đại diện cho map:
     public void drawMap() {
@@ -291,7 +319,11 @@ public class PlayScreen extends BasicGameState {
     }
 
     // Load các file ảnh tháp và bản đồ
-    public void loadEnemiesAndTowersImage() throws SlickException {
+    public void loadImages() throws SlickException {
+
+        gameOverImage = new Image("graphics/GameOver.jpg");
+
+
         roadTile = new Image("graphics/MapTile/sand_tile.png"); // Ảnh đường đi
         towerTile = new Image("graphics/MapTile/grass_tile.png"); // Ảnh tháp
 

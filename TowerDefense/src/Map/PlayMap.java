@@ -16,15 +16,15 @@ public class PlayMap {
 
             for (int x = 0; x < mapTile[0].length; x++) {
 
-                if (CustomMap.map1[y][x] == 0) {
+                if (customMap[y][x] == 0) {
 
                     mapTile[y][x] = new TowerTile(x, y);
 
-                } else if (CustomMap.map1[y][x] == 1) {
+                } else if (customMap[y][x] == 1) {
 
                     mapTile[y][x] = new RoadTile(x, y);
 
-                } else if (CustomMap.map1[y][x] == 2) {
+                } else if (customMap[y][x] == 2) {
 
                     mapTile[y][x] = new RoadTile(x, y);
 
@@ -61,4 +61,8 @@ public class PlayMap {
     public static int getHeightOfMap() {
         return mapTile.length;
     }
+
+    public static int getWidthOfMapInPixel() { return getWidthOfMap() * tileSize; }
+
+    public static int getHeightOfMapInPixel() { return getHeightOfMap() * tileSize; }
 }

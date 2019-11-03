@@ -191,9 +191,9 @@ public abstract class Tower {
         return fireRange;
     }
 
-    public double getReloadTime() {
-        return reloadTime;
-    }
+//    public double getReloadTime() {
+//        return reloadTime;
+//    }
 
     public TowerType getType() {
         return towerType;

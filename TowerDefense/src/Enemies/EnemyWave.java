@@ -1,7 +1,8 @@
 package Enemies;
 
+import GamePlay.Player;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -22,25 +23,26 @@ public class EnemyWave {
             {20, 8, 10, 9},
     };
 
-    public static Queue<Enemy> enemyList;
+    public static Queue<Enemy> enemyQueue;
     public static ArrayList<Enemy> activeEnemyList;
 
     public EnemyWave() {
 
-        enemyList = new LinkedList<>();
+        enemyQueue = new LinkedList<>();
 
         activeEnemyList = new ArrayList<>();
 
     }
 
     boolean hasSpawn = false;
+    boolean addToQueue = false;
 
     public void update(int currentLevel) {
 
-        if (!hasSpawn) {
+        if (!hasSpawn && currentLevel < 12) {
 
             spawn(currentLevel); // Thêm tất cả các quân địch trong một wave vào hàng chờ
-
+            addToQueue = true;
             hasSpawn = true;
         }
 
@@ -48,11 +50,19 @@ public class EnemyWave {
 
         for (int i = 0; i < activeEnemyList.size(); i++) {
 
-            if (activeEnemyList.get(i).isAlive()) {
+            Enemy currentEnemy = activeEnemyList.get(i);
+            if (currentEnemy.isAlive()) {
 
-                activeEnemyList.get(i).move();
+                currentEnemy.move();
+
+                if (currentEnemy.hasReachedExit()) {
+                    activeEnemyList.remove(i);
+                    Player.decreaseLife();
+                }
 
             } else {
+
+                Player.addMoney(currentEnemy.getReward());
 
                 activeEnemyList.remove(i);
 
@@ -68,25 +78,26 @@ public class EnemyWave {
 
                 switch (i) {
                     case 0:
-                        enemyList.add(new NormalEnemy());
+                        enemyQueue.add(new NormalEnemy());
                         break;
 
                     case 1:
-                        enemyList.add(new FastEnemy());
+                        enemyQueue.add(new FastEnemy());
                         break;
 
                     case 2:
-                        enemyList.add(new TankerEnemy());
+                        enemyQueue.add(new TankerEnemy());
                         break;
 
                     default:
-                        enemyList.add(new BossEnemy());
+                        enemyQueue.add(new BossEnemy());
                         break;
                 }
 
             }
 
         }
+
     }
 
     int tickCount = 0; // Biến đếm
@@ -98,14 +109,22 @@ public class EnemyWave {
 
         if (tickCount > enemySpawnDelay) {
 
-            if (enemyList.size() > 0) {
+            if (enemyQueue.size() > 0) {
 
-                EnemyWave.activeEnemyList.add(EnemyWave.enemyList.poll());
+                EnemyWave.activeEnemyList.add(EnemyWave.enemyQueue.poll());
 
             }
 
             tickCount = 0;
 
         }
+    }
+
+    public void setRespawn() {
+        hasSpawn = false;
+    }
+
+    public boolean hasAddToQueue() {
+        return addToQueue;
     }
 }

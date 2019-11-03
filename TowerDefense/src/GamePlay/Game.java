@@ -10,8 +10,8 @@ public class Game extends StateBasedGame {
     public static final int menuScreen = 0;
     public static final int playScreen = 1;
 
-    public static final int WindowWidth = 960;
-    public static final int WindowHeight = 720;
+    public static final int WINDOW_WIDTH = 960;
+    public static final int WINDOW_HEIGHT = 720;
 
     public Game(String name) {
         super(name);
@@ -28,7 +28,7 @@ public class Game extends StateBasedGame {
     public static void main(String[] args) throws SlickException {
         AppGameContainer app = new AppGameContainer(new Game("Tower Defense"));
         //set resolution to map size
-        app.setDisplayMode(WindowWidth, WindowHeight, false);
+        app.setDisplayMode(WINDOW_WIDTH, WINDOW_HEIGHT, false);
         app.setTargetFrameRate(30);
         app.setShowFPS(false);
         app.start();
