@@ -65,7 +65,7 @@ public class PlayScreen extends BasicGameState {
 
     boolean gameOver = false;
 
-//    Music themeSong;
+    Music themeSong;
 
     public PlayScreen(int state) {
 
@@ -80,7 +80,7 @@ public class PlayScreen extends BasicGameState {
     public void init(GameContainer gameContainer, StateBasedGame stateBasedGame) throws SlickException {
         g = new Graphics();
 
-//        themeSong = new Music("sound_effect/Overture1928.wav");
+        themeSong = new Music("sound_effect/Overture1928.wav");
 
         projectiles = new ArrayList<>();
 

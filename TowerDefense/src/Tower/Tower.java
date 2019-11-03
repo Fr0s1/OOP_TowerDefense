@@ -1,15 +1,9 @@
 package Tower;
 
 import Enemies.Enemy;
-import Enemies.EnemyWave;
 import GamePlay.PlayScreen;
-import HelpfulFunctions.Function;
 import Map.PlayMap;
-
 import java.util.*;
-
-import static HelpfulFunctions.Function.*;
-import static Enemies.EnemyWave.*;
 
 class CompareEnemy implements Comparator<Enemy> {
     @Override
@@ -72,7 +66,11 @@ public abstract class Tower {
     }
 
     public double calculateDistanceToEnemy(Enemy enemy) {
-        return calculateDistance(this.xPos + PlayMap.tileSize / 2, this.yPos + PlayMap.tileSize / 2, enemy.getxPos() + PlayMap.tileSize / 2, enemy.getyPos() + PlayMap.tileSize / 2);
+        double deltaXPos = this.xPos - enemy.getxPos();
+        double deltaYPos = this.yPos - enemy.getyPos();
+        double distance = Math.sqrt(Math.pow(deltaXPos, 2) + Math.pow(deltaYPos, 2));
+
+        return distance;
     }
 
     /* Tìm tất cả các quân địch trong tầm bắn
