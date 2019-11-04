@@ -16,6 +16,10 @@ public class Player {
         currentMoney += amount;
     }
 
+    public static void spendMoney(int amount){
+        currentMoney -= amount;
+    }
+
     public static void decreaseLife() {
         currentLife -= 1;
     }

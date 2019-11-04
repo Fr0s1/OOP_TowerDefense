@@ -23,6 +23,7 @@ abstract public class Tile {
         this.type = type;
     }
 
+
     // Lấy tọa độ của ô theo mảng 2 chiều:
     public int getX() {
         return x;

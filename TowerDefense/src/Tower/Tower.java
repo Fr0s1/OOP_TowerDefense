@@ -3,6 +3,7 @@ package Tower;
 import Enemies.Enemy;
 import GamePlay.PlayScreen;
 import Map.PlayMap;
+
 import java.util.*;
 
 class CompareEnemy implements Comparator<Enemy> {
@@ -34,6 +35,7 @@ public abstract class Tower {
     double fireRange;   // Tầm bắn của tháp
     double timeSinceLastShot;
     double reloadTime;  // Thời gian nạp đạn
+    int towerCost;
 
     float angleOfRotation;
 
@@ -42,7 +44,7 @@ public abstract class Tower {
 
     Enemy targetEnemy; // Mục tiêu hiện tại của tháp
 
-    public Tower(int xLoc, int yLoc, double damage, double fireRange, double reloadTime, TowerType type) {
+    public Tower(int xLoc, int yLoc, double damage, double fireRange, double reloadTime, TowerType type, int towerCost) {
         this.xLoc = xLoc;
         this.yLoc = yLoc;
         this.xPos = xLoc * PlayMap.tileSize;
@@ -63,6 +65,7 @@ public abstract class Tower {
         this.reloadTime = reloadTime;
 
         this.towerType = type;
+        this.towerCost = towerCost;
     }
 
     public double calculateDistanceToEnemy(Enemy enemy) {
@@ -125,6 +128,7 @@ public abstract class Tower {
             return false;
 
         }
+
     }
 
     public Projectile attackEnemy(Enemy targetEnemy) {
@@ -137,16 +141,21 @@ public abstract class Tower {
 
                 case NORMAL_TOWER:
                     return new Projectile(this.xPos, this.yPos, targetEnemy.getxPos(), targetEnemy.getyPos(), towerDamage, targetEnemy, Projectile.ProjectileType.NORMAL_PROJECTILE);
+
                 case SNIPER_TOWER:
                     return new Projectile(this.xPos, this.yPos, targetEnemy.getxPos(), targetEnemy.getyPos(), towerDamage, targetEnemy, Projectile.ProjectileType.SNIPER_PROJECTILE);
+
                 default:
                     return new Projectile(this.xPos, this.yPos, targetEnemy.getxPos(), targetEnemy.getyPos(), towerDamage, targetEnemy, Projectile.ProjectileType.MACHINE_GUN_PROJECTILE);
 
             }
 
         } else {
+
             return null;
+
         }
+
     }
 
     public Enemy getTargetEnemy() {
@@ -163,6 +172,11 @@ public abstract class Tower {
         }
 
         return angleOfRotation;
+    }
+
+    public void upgradeTower() {
+        this.towerDamage *= 3.0 / 2;
+        this.towerCost = Math.round((this.towerCost * 3) / 2);
     }
 
     public int getxLoc() {
@@ -195,5 +209,9 @@ public abstract class Tower {
 
     public TowerType getType() {
         return towerType;
+    }
+
+    public int getCost() {
+        return towerCost;
     }
 }

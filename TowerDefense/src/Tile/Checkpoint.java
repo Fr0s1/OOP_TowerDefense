@@ -1,5 +1,7 @@
 package Tile;
 
+import Tile.*;
+
 // Lớp đại diện cho các ô ở góc
 public class Checkpoint {
     private Tile tile;

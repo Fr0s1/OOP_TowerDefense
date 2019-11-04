@@ -18,6 +18,7 @@ public class MenuScreen extends BasicGameState {
     Rectangle startButton;
     Rectangle exitButton;
 
+    Music RickAndMorty;
 
     public MenuScreen(int state) {
     }
@@ -30,9 +31,11 @@ public class MenuScreen extends BasicGameState {
 
     @Override
     public void init(GameContainer gameContainer, StateBasedGame stateBasedGame) throws SlickException {
+        RickAndMorty = new Music("sound_effect/RickandMorty.wav");
+
         loadImage();
         createButton(gameContainer);
-//        themeSong.play();
+        RickAndMorty.play();
     }
 
     @Override
