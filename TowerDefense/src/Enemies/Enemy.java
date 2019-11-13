@@ -1,15 +1,18 @@
 package Enemies;
 
+import GamePlay.PlayScreen;
 import Map.*;
 
 import static GamePlay.PlayScreen.*;
 
 import Tile.Checkpoint;
 import Tile.Tile;
+import Tower.Projectile;
 
 import java.util.ArrayList;
 
 public abstract class Enemy {
+
     // Các loại quân địch
     public enum EnemyType {
         FAST, NORMAL, TANKER, BOSS
@@ -17,6 +20,8 @@ public abstract class Enemy {
 
     private double maxHealth;
     private double currentHealth;
+
+    public double distanceTraveled;
 
     private double movementSpeed;
     private double armor;
@@ -40,13 +45,21 @@ public abstract class Enemy {
     private boolean first = true; // Kiểm tra địch xem có đang ở ô xuất phát hay không
     private boolean alive = true;
     private boolean visible = true;
+
     private boolean reachedExit = false;
 
-    public Enemy(EnemyType type, Tile spawnTile, double currentHealth, double movementSpeed, double armor, int reward) {
+    private double slowDurationCount;
+    private boolean affectedBySlowTower;
+
+    private double slowedDuration = 3;
+
+    Enemy(EnemyType type, Tile spawnTile, double currentHealth, double movementSpeed, double armor, int reward) {
         this.type = type;
 
         this.maxHealth = currentHealth;
         this.currentHealth = currentHealth;
+
+        this.distanceTraveled = 0;
 
         this.movementSpeed = movementSpeed;
         this.armor = armor;
@@ -59,6 +72,9 @@ public abstract class Enemy {
         this.checkpoints = new ArrayList<>();
         this.currentCheckpoint = 0;
         this.directions = new int[2];
+
+        slowDurationCount = 0;
+        affectedBySlowTower = false;
 
         directions = findNextDirection(spawnTile); // Tìm hướng đi tiếp theo ở ô quân địch bắt đầu
 
@@ -106,8 +122,10 @@ public abstract class Enemy {
 
     // Tìm ô ở góc từ 1 ô đường đi
     private Checkpoint findNextCheckpoint(Tile currentTile, int[] dir) {
+
         Tile next = null;
-        Checkpoint c = null;
+
+        Checkpoint c;
 
         // Boolean to decide if checkpoint is found
         boolean found = false;
@@ -160,11 +178,11 @@ public abstract class Enemy {
             counter++;
 
         }
+
     }
 
     private boolean checkpointReached() {
         boolean reached = false;
-
         Tile nextCheckpoint = checkpoints.get(currentCheckpoint).getTile();
 
         // Check if position reached tile within variance of 3 (arbitrary):
@@ -184,11 +202,20 @@ public abstract class Enemy {
     }
 
     public void move() {
+
         if (first) {
 
             first = false;
 
         } else {
+
+            if (affectedBySlowTower) {
+
+                slowDurationCount += delta;
+
+            }
+
+            unfreezeEnemy();
 
             if (checkpointReached()) {
 
@@ -201,22 +228,29 @@ public abstract class Enemy {
                 } else {
 
                     currentCheckpoint++;
+
                 }
 
             } else {
 
-                xPos += checkpoints.get(currentCheckpoint).getxDirection() * movementSpeed * getDelta();
+                double deltaX = checkpoints.get(currentCheckpoint).getxDirection() * getMovementSpeed() * getDelta();
+                double deltaY = checkpoints.get(currentCheckpoint).getyDirection() * getMovementSpeed() * getDelta();
 
-                yPos += checkpoints.get(currentCheckpoint).getyDirection() * movementSpeed * getDelta();
+                xPos += deltaX;
+                yPos += deltaY;
+
+                distanceTraveled += (Math.abs(deltaX) + Math.abs(deltaY));
 
             }
+
         }
+
     }
 
 
     public void takeDamage(double damage) {
 
-        currentHealth -= damage / armor;
+        currentHealth -= damage * (1 - armor);
 
         if (currentHealth <= 0) {
 
@@ -225,17 +259,68 @@ public abstract class Enemy {
             visible = false;
 
         }
+
+    }
+
+    public void slowEnemy(double duration) {
+
+        this.slowedDuration = duration;
+
+        affectedBySlowTower = true;
+
+        this.resetSlowDuration();
+
+    }
+
+    public void unfreezeEnemy() {
+
+        if (slowDurationCount > slowedDuration) {
+
+            this.resetSlowDuration();
+
+            affectedBySlowTower = false;
+
+        }
+
+    }
+
+    public void resetSlowDuration() {
+        this.slowDurationCount = 0;
     }
 
     public boolean isAlive() {
         return alive;
     }
 
-    public boolean isVisible() {
-        return visible;
+    public boolean isVisible() { return visible; }
+
+    public boolean hasReachedExit() {
+        return reachedExit;
     }
 
-    public boolean hasReachedExit() { return reachedExit; }
+    public double getMovementSpeed() {
+
+        if (affectedBySlowTower) {
+
+            double slowMultiplier = 0.5;
+
+            return movementSpeed * slowMultiplier;
+
+        } else {
+
+            return movementSpeed;
+
+        }
+
+    }
+
+    public double getOriginalMovementSpeed() {
+        return movementSpeed;
+    }
+
+    public boolean isAffectedBySlowTower() {
+        return this.affectedBySlowTower;
+    }
 
     public double getCurrentHealth() {
         return currentHealth;
@@ -243,10 +328,6 @@ public abstract class Enemy {
 
     public double getMaxHealth() {
         return maxHealth;
-    }
-
-    public double getMovementSpeed() {
-        return movementSpeed;
     }
 
     public int getReward() {
@@ -271,5 +352,9 @@ public abstract class Enemy {
 
     public int getYDirection() {
         return checkpoints.get(currentCheckpoint).getyDirection();
+    }
+
+    public double getDistanceTraveled() {
+        return distanceTraveled;
     }
 }

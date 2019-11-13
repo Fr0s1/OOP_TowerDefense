@@ -4,6 +4,7 @@ import Tile.*;
 
 // Lớp đại diện cho các ô ở góc
 public class Checkpoint {
+
     private Tile tile;
     private int xDirection, yDirection; // Hướng của địch để đến được ô ở góc
 

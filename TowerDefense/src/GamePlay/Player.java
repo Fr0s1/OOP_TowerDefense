@@ -7,28 +7,24 @@ public class Player {
     private static int currentLife;
     private static int currentMoney;
 
-    public Player() {
-        this.currentLife = startingLive;
-        this.currentMoney = startingMoney;
+    Player() {
+        currentLife = startingLive;
+        currentMoney = startingMoney;
     }
 
     public static void addMoney(int amount) {
         currentMoney += amount;
     }
 
-    public static void spendMoney(int amount){
-        currentMoney -= amount;
-    }
-
     public static void decreaseLife() {
         currentLife -= 1;
     }
 
-    public static int getCurrentLife() {
+    static int getCurrentLife() {
         return currentLife;
     }
 
-    public static int getCurrentMoney() {
+    static int getCurrentMoney() {
         return currentMoney;
     }
 }

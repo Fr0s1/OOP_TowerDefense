@@ -1,8 +1,10 @@
 package Enemies;
 
 import GamePlay.Player;
+import Tower.Projectile;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -34,12 +36,12 @@ public class EnemyWave {
 
     }
 
-    boolean hasSpawn = false;
-    boolean addToQueue = false;
+    private boolean hasSpawn = false;
+    private boolean addToQueue = false;
 
     public void update(int currentLevel) {
 
-        if (!hasSpawn && currentLevel < 12) {
+        if (!hasSpawn) {
 
             spawn(currentLevel); // Thêm tất cả các quân địch trong một wave vào hàng chờ
             addToQueue = true;
@@ -51,12 +53,15 @@ public class EnemyWave {
         for (int i = 0; i < activeEnemyList.size(); i++) {
 
             Enemy currentEnemy = activeEnemyList.get(i);
+
             if (currentEnemy.isAlive()) {
 
                 currentEnemy.move();
 
                 if (currentEnemy.hasReachedExit()) {
+
                     activeEnemyList.remove(i);
+
                     Player.decreaseLife();
                 }
 
@@ -74,24 +79,51 @@ public class EnemyWave {
 
         for (int i = 0; i < 4; i++) {
 
-            for (int j = 1; j <= enemyWave[currentLevel - 1][i]; j++) {
+            if (currentLevel <= 12) {
 
-                switch (i) {
-                    case 0:
-                        enemyQueue.add(new NormalEnemy());
-                        break;
+                for (int j = 1; j <= enemyWave[currentLevel - 1][i]; j++) {
 
-                    case 1:
-                        enemyQueue.add(new FastEnemy());
-                        break;
+                    switch (i) {
+                        case 0:
+                            enemyQueue.add(new NormalEnemy());
+                            break;
 
-                    case 2:
-                        enemyQueue.add(new TankerEnemy());
-                        break;
+                        case 1:
+                            enemyQueue.add(new FastEnemy());
+                            break;
 
-                    default:
-                        enemyQueue.add(new BossEnemy());
-                        break;
+                        case 2:
+                            enemyQueue.add(new TankerEnemy());
+                            break;
+
+                        default:
+                            enemyQueue.add(new BossEnemy());
+                            break;
+                    }
+
+                }
+
+            } else {
+                for (int j = 1; j <= enemyWave[currentLevel - 1][i] + currentLevel - 11; j++) {
+
+                    switch (i) {
+                        case 0:
+                            enemyQueue.add(new NormalEnemy());
+                            break;
+
+                        case 1:
+                            enemyQueue.add(new FastEnemy());
+                            break;
+
+                        case 2:
+                            enemyQueue.add(new TankerEnemy());
+                            break;
+
+                        default:
+                            enemyQueue.add(new BossEnemy());
+                            break;
+                    }
+
                 }
 
             }
@@ -100,8 +132,8 @@ public class EnemyWave {
 
     }
 
-    int tickCount = 0; // Biến đếm
-    int enemySpawnDelay = 20; // Để không add liên tiếp quân địch vào danh sách
+    private int tickCount = 0; // Biến đếm
+    private int enemySpawnDelay = 20; // Để không add liên tiếp quân địch vào danh sách
 
     public void addEnemyToActiveList() {
 
@@ -118,13 +150,14 @@ public class EnemyWave {
             tickCount = 0;
 
         }
+
     }
 
     public void setRespawn() {
         hasSpawn = false;
     }
 
-    public boolean hasAddToQueue() {
+    public boolean hasAddedToQueue() {
         return addToQueue;
     }
 }

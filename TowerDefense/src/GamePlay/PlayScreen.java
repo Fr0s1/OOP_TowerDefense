@@ -23,7 +23,7 @@ public class PlayScreen extends BasicGameState {
 
     private final int mouseClickDelay = 200;
 
-    private static int selectTower = -1;
+    private static int selectMenuOption = -1;
 
     private long lastClick = (-1 * mouseClickDelay);
 
@@ -32,81 +32,97 @@ public class PlayScreen extends BasicGameState {
     private PlayMap playMap = new PlayMap(CustomMap.map1);
 
     // Map tile image
-    Image gameOverImage;
+    private Image gameOverImage;
 
-    Image roadTile;
-    Image towerTile;
+    private Image roadTile;
+    private Image towerTile;
 
-    Image normalTowerGraphic;
-    Image machineGunTowerGraphic;
-    Image sniperTowerGraphic;
-    Image towerBase;
+    private Image normalTowerGraphic;
 
-    Image normalTowerProjectile;
-    Image machineGunTowerProjectile;
-    Image sniperTowerProjectile;
+    private Image machineGunTowerGraphic;
+    private Image sniperTowerGraphic;
+    private Image slowTowerGraphic;
+    private Image towerBase;
 
-    Image normalTowerButton;
-    Image machineGunTowerButton;
-    Image sniperTowerButton;
-    Image upgradeButtonGraphic;
-    Image backGround;
-    Image towerBox;
+    private Image normalTowerProjectile;
+    private Image machineGunTowerProjectile;
+    private Image sniperTowerProjectile;
+    private Image slowTowerProjectile;
 
-    Image showLife;
-    Image showWaveGraphic;
-    Image sellButtonGraphic;
-    Image nextWaveGraphic;
-    Image showMoneyGraphic;
+    private Image normalTowerButton;
+    private Image machineGunTowerButton;
+    private Image sniperTowerButton;
+    private Image slowTowerButton;
 
-    Image sellTowerImage;
-    Image upgradeTowerImage;
+    private Image upgradeButtonGraphic;
+    private Image backGround;
+    private Image towerBox;
 
-    Image fastForwardGraphic;
+    private Image showLife;
 
-    Rectangle buyNormalTowerButton;
-    Rectangle buyMachineGunButton;
-    Rectangle buySniperTowerButton;
-    Rectangle upgradeButton;
-    Rectangle sellButton;
-    Rectangle nextWave;
-    Rectangle fastForwardButton;
+    private Image showWaveGraphic;
+    private Image waveInActive;
 
-    public String showMoney;
-    public String showLives;
-    public String showWave;
+    private Image sellButtonGraphic;
+    private Image nextWaveGraphic;
+    private Image showMoneyGraphic;
 
-    Image[] normalEnemyWalkImages = new Image[19];
-    Animation normalEnemyWalkAnimation;
+    private Image sellTowerImage;
+    private Image upgradeTowerImage;
+    private Image[] towerLevel;
 
-    Image[] fastEnemyWalkImages = new Image[19];
-    Animation fastEnemyWalkAnimation;
+    private Image fastForwardGraphic;
 
-    Image[] tankEnemyWalkImages = new Image[19];
-    Animation tankEnemyWalkAnimation;
+    private Rectangle buyNormalTowerButton;
+    private Rectangle buyMachineGunButton;
+    private Rectangle buySniperTowerButton;
+    private Rectangle buySlowTowerButton;
 
-    Image[] bossEnemyWalkImages = new Image[19];
-    Animation bossEnemyWalkAnimation;
+    private Rectangle upgradeButton;
+    private Rectangle sellButton;
+    private Rectangle nextWave;
+    private Rectangle fastForwardButton;
+
+    private String showMoney;
+    private String showLives;
+    private String showWave;
+
+    private String normalTowerCost;
+    private String machineGunTowerCost;
+    private String sniperTowerCost;
+    private String slowTowerCost;
+
+    private Image[] normalEnemyWalkImages = new Image[19];
+    private Animation normalEnemyWalkAnimation;
+
+    private Image[] fastEnemyWalkImages = new Image[19];
+    private Animation fastEnemyWalkAnimation;
+
+    private Image[] tankEnemyWalkImages = new Image[19];
+    private Animation tankEnemyWalkAnimation;
+
+    private Image[] bossEnemyWalkImages = new Image[19];
+    private Animation bossEnemyWalkAnimation;
 
     EnemyWave wave = new EnemyWave();
 
-    ArrayList<Projectile> projectiles;
+    private ArrayList<Projectile> projectiles;
     ArrayList<Tower> towersOnMap = new ArrayList<Tower>();
 
-    Graphics g;
+    private Graphics g;
 
-    Player player1;
+    private Player player1;
 
-    int currentLevel = 1;
+    private int currentLevel = 1;
 
     boolean gameOver = false;
 
-    int countFastForwardClickedTime = 0;
-    boolean fastForward = false;
+    private int countFastForwardClickedTime = 0;
+    private boolean fastForward = false;
 
-    boolean waveInProgress = false;
+    private boolean waveInProgress = false;
 
-    Music themeSong;
+    private boolean enterPlayScreen = false;
 
     public PlayScreen(int state) {
 
@@ -121,7 +137,7 @@ public class PlayScreen extends BasicGameState {
     public void init(GameContainer gameContainer, StateBasedGame stateBasedGame) throws SlickException {
         g = new Graphics();
 
-        themeSong = new Music("sound_effect/SuperMarioBros.wav");
+        Music themeSong = new Music("sound_effect/Overture1928.wav");
 
         projectiles = new ArrayList<>();
 
@@ -136,6 +152,8 @@ public class PlayScreen extends BasicGameState {
 
         createMenuButtons();
 
+        enterPlayScreen = true;
+
 //        themeSong.play();
     }
 
@@ -144,7 +162,7 @@ public class PlayScreen extends BasicGameState {
 
         drawMap();
 
-        drawMenu();
+        drawMenu(graphics);
 
         graphics.drawString(showLives, 730 + 40, 500 + 5);
         graphics.drawString(showWave, 780 + 70, 250 + 25);
@@ -172,17 +190,17 @@ public class PlayScreen extends BasicGameState {
     @Override
     public void update(GameContainer gameContainer, StateBasedGame stateBasedGame, int delta) throws SlickException {
 
-        isGameOver();
+        enterPlayScreen = true;
 
-        showLives = "Current lives: " + player1.getCurrentLife();
-        showMoney = String.valueOf(player1.getCurrentMoney());
-        showWave = String.valueOf(currentLevel);
+        isGameOver();
 
         if (!gameOver) {
 
+            loadMenuInformation();
+
             if (fastForward) {
-                gameContainer.setTargetFrameRate(50);
-            } else  {
+                gameContainer.setTargetFrameRate(60);
+            } else {
                 gameContainer.setTargetFrameRate(30);
             }
 
@@ -213,6 +231,61 @@ public class PlayScreen extends BasicGameState {
 
     }
 
+    // Load các file ảnh tháp và bản đồ
+    public void loadImages() throws SlickException {
+
+        normalTowerButton = new Image("graphics/Towers/normalTower48.png");
+        machineGunTowerButton = new Image("graphics/Towers/machineGunTower48.png");
+        sniperTowerButton = new Image("graphics/Towers/sniperTower48.png");
+        slowTowerButton = new Image("graphics/Towers/SlowTower48.png");
+
+        upgradeButtonGraphic = new Image("graphics/UpgradeTowerButton.png");
+        backGround = new Image("graphics/background.jpg");
+        towerBox = new Image("graphics/towerBox.png");
+
+        showLife = new Image("graphics/Heart.png");
+        showWaveGraphic = new Image("graphics/WaveGraphic.png");
+        waveInActive = new Image("graphics/nextWaveNonActive.png");
+
+        sellButtonGraphic = new Image("graphics/SellButtonGraphic.png");
+        nextWaveGraphic = new Image("graphics/nextWaveActive.png");
+        showMoneyGraphic = new Image("graphics/CurrencyGraphic.png");
+
+        // Load ảnh các level của tháp
+        towerLevel = new Image[4];
+
+        for (int i = 1; i <= 3; i++) {
+            String path = "graphics/Towers/TowerLevel/Level" + i + ".png";
+            towerLevel[i] = new Image(path);
+        }
+
+        fastForwardGraphic = new Image("graphics/FastForwardButton.png");
+
+        sellTowerImage = new Image("graphics/SellSelectGraphic.png");
+        upgradeTowerImage = new Image("graphics/UpgradeSelectGraphic.png");
+        gameOverImage = new Image("graphics/GameOver.jpg");
+
+
+        roadTile = new Image("graphics/MapTile/sand_tile.png"); // Ảnh đường đi
+        towerTile = new Image("graphics/MapTile/grass_tile.png"); // Ảnh tháp
+
+
+        normalTowerGraphic = new Image("graphics/Towers/normalTower48.png");
+        machineGunTowerGraphic = new Image("graphics/Towers/machineGunTower48.png");
+        sniperTowerGraphic = new Image("graphics/Towers/sniperTower48.png");
+        slowTowerGraphic = new Image("graphics/Towers/SlowTower48.png");
+
+
+        towerBase = new Image("graphics/Towers/towerBase48.png");
+
+
+        normalTowerProjectile = new Image("graphics/Projectiles/normalTowerProjectile.png");
+        machineGunTowerProjectile = new Image("graphics/Projectiles/machineGunTowerProjectile.png");
+        sniperTowerProjectile = new Image("graphics/Projectiles/sniperTowerProjectile.png");
+        slowTowerProjectile = new Image("graphics/Projectiles/slowTowerProjectile.png");
+    }
+
+
     public void isGameOver() {
         if (Player.getCurrentLife() == 0) {
             gameOver = true;
@@ -221,26 +294,26 @@ public class PlayScreen extends BasicGameState {
 
     public void isWaveFinished() {
         if (Player.getCurrentLife() > 0 && EnemyWave.enemyQueue.size() == 0 && EnemyWave.activeEnemyList.size() == 0) {
+            projectiles.clear();
             wave.setRespawn();
             currentLevel++;
             waveInProgress = false;
         }
     }
 
-    // Hàm vẽ sân chơi theo mảng 2 chiều đại diện cho map:
-    public void drawMap() {
-        for (int y = 0; y < playMap.getHeightOfMap(); y++) {
-            for (int x = 0; x < playMap.getWidthOfMap(); x++) {
-                if (PlayMap.mapTile[y][x] instanceof RoadTile) {
-                    roadTile.draw(x * roadTile.getWidth(), y * roadTile.getHeight());
-                } else {
-                    towerTile.draw(x * roadTile.getWidth(), y * roadTile.getHeight());
-                }
-            }
-        }
+    public void loadMenuInformation() {
+        showLives = "Current lives: " + Player.getCurrentLife();
+        showMoney = String.valueOf(Player.getCurrentMoney());
+        showWave = String.valueOf(currentLevel);
+
+        normalTowerCost = String.valueOf(NormalTower.cost);
+        machineGunTowerCost = String.valueOf(MachineGunTower.cost);
+        sniperTowerCost = String.valueOf(SniperTower.cost);
+        slowTowerCost = String.valueOf(SlowTower.cost);
+
     }
 
-    public void drawMenu() {
+    public void drawMenu(Graphics graphics) {
         int size = 60;
         int boxSize = 80;
 
@@ -248,14 +321,33 @@ public class PlayScreen extends BasicGameState {
         towerBox.draw(740, 40, boxSize, boxSize);
         towerBox.draw(840, 40, boxSize, boxSize);
         towerBox.draw(740, 140, boxSize, boxSize);
+        towerBox.draw(840, 140, boxSize, boxSize);
+
         normalTowerButton.draw(750, 50, size, size);
+        graphics.drawString(normalTowerCost, 765, 50 + size + 2);
+
         machineGunTowerButton.draw(850, 50, size, size);
+        graphics.drawString(machineGunTowerCost, 865, 50 + size + 2);
+
         sniperTowerButton.draw(750, 150, size, size);
+        graphics.drawString(sniperTowerCost, 765, 150 + size + 2);
+
+        slowTowerButton.draw(850, 150, size, size);
+        graphics.drawString(slowTowerCost, 865, 150 + size + 2);
+
 
         showWaveGraphic.draw(760, 250);
+
         showLife.draw(730, 500, 30, 30);
         showMoneyGraphic.draw(725, 540, 45, 45);
-        nextWaveGraphic.draw(730 + 30, 350 - 20);
+
+        if (waveInProgress) {
+
+            waveInActive.draw(760, 330);
+        } else {
+
+            nextWaveGraphic.draw(730 + 30, 350 - 20);
+        }
 
         sellButtonGraphic.draw(745, 395);
         upgradeButtonGraphic.draw(850, 395, size, size);
@@ -268,11 +360,14 @@ public class PlayScreen extends BasicGameState {
         buyNormalTowerButton = new Rectangle(750, 50, normalTowerButton.getWidth(), normalTowerButton.getHeight());
         buyMachineGunButton = new Rectangle(850, 50, machineGunTowerButton.getWidth(), machineGunTowerButton.getHeight());
         buySniperTowerButton = new Rectangle(750, 150, sniperTowerGraphic.getWidth(), sniperTowerGraphic.getHeight());
+        buySlowTowerButton = new Rectangle(850, 150, slowTowerGraphic.getWidth(), slowTowerGraphic.getHeight());
+
         nextWave = new Rectangle(760, 330, nextWaveGraphic.getWidth(), nextWaveGraphic.getHeight());
         sellButton = new Rectangle(745, 395, sellButtonGraphic.getWidth(), sellButtonGraphic.getHeight());
         upgradeButton = new Rectangle(850, 395, upgradeButtonGraphic.getWidth(), upgradeButtonGraphic.getHeight());
 
         fastForwardButton = new Rectangle(840 - fastForwardGraphic.getWidth() / 2, 624, fastForwardGraphic.getWidth(), fastForwardGraphic.getHeight());
+
     }
 
     public void drawEnemyWave() {
@@ -289,12 +384,15 @@ public class PlayScreen extends BasicGameState {
                     case FAST:
                         a = fastEnemyWalkAnimation;
                         break;
+
                     case NORMAL:
                         a = normalEnemyWalkAnimation;
                         break;
+
                     case TANKER:
                         a = tankEnemyWalkAnimation;
                         break;
+
                     default:
                         a = bossEnemyWalkAnimation;
                         break;
@@ -339,26 +437,48 @@ public class PlayScreen extends BasicGameState {
 
         for (Tower tower : towersOnMap) {
 
-            Image img;
+            Image towerImage;
+            Image level;
 
             switch (tower.getType()) {
 
                 case NORMAL_TOWER:
-                    img = normalTowerGraphic;
+                    towerImage = normalTowerGraphic;
                     break;
 
                 case MACHINE_GUN_TOWER:
-                    img = machineGunTowerGraphic;
+                    towerImage = machineGunTowerGraphic;
+                    break;
+
+                case SLOW_TOWER:
+                    towerImage = slowTowerGraphic;
                     break;
 
                 default:
-                    img = sniperTowerGraphic;
+                    towerImage = sniperTowerGraphic;
                     break;
             }
 
             towerBase.draw(tower.getXPos(), tower.getYPos());
-            img.setRotation(tower.getAngleOfRotationInDegrees());
-            img.drawCentered(tower.getXPos() + normalTowerGraphic.getWidth() / 2, tower.getYPos() + normalTowerGraphic.getHeight() / 2);
+
+            towerImage.setRotation(tower.getAngleOfRotationInDegrees());
+            towerImage.drawCentered(tower.getXPos() + normalTowerGraphic.getWidth() / 2, tower.getYPos() + normalTowerGraphic.getHeight() / 2);
+
+            switch (tower.getTowerLevel()) {
+                case 1:
+                    level = towerLevel[1];
+                    break;
+
+                case 2:
+                    level = towerLevel[2];
+                    break;
+
+                default:
+                    level = towerLevel[3];
+                    break;
+            }
+
+            level.drawCentered(tower.getXPos() + normalTowerGraphic.getWidth() / 2, tower.getYPos() + normalTowerGraphic.getHeight() / 2);
 
         }
 
@@ -386,6 +506,10 @@ public class PlayScreen extends BasicGameState {
                         projectile = normalTowerProjectile;
                         break;
 
+                    case SLOW_TOWER_PROJECTILE:
+                        projectile = slowTowerProjectile;
+                        break;
+
                     default:
                         projectile = sniperTowerProjectile;
                         break;
@@ -404,6 +528,10 @@ public class PlayScreen extends BasicGameState {
     public void updateTower(ArrayList<Tower> towersOnMap) {
 
         for (Tower tower : towersOnMap) {
+
+            if (waveInProgress) {
+                tower.setCantRefund();
+            }
 
             tower.addEnemiesInRange(EnemyWave.activeEnemyList);
 
@@ -428,46 +556,6 @@ public class PlayScreen extends BasicGameState {
             p.move();
 
         }
-
-    }
-
-    // Load các file ảnh tháp và bản đồ
-    public void loadImages() throws SlickException {
-
-        normalTowerButton = new Image("graphics/Towers/normalTower48.png");
-        machineGunTowerButton = new Image("graphics/Towers/machineGunTower48.png");
-        sniperTowerButton = new Image("graphics/Towers/sniperTower48.png");
-
-        upgradeButtonGraphic = new Image("graphics/UpgradeTowerButton.png");
-        backGround = new Image("graphics/background.jpg");
-        towerBox = new Image("graphics/towerBox.png");
-
-        showLife = new Image("graphics/Heart.png");
-        showWaveGraphic = new Image("graphics/WaveGraphic.png");
-        sellButtonGraphic = new Image("graphics/SellButtonGraphic.png");
-        nextWaveGraphic = new Image("graphics/nextWaveActive.png");
-        showMoneyGraphic = new Image("graphics/CurrencyGraphic.png");
-
-        fastForwardGraphic = new Image("graphics/FastForwardButton.png");
-
-        sellTowerImage = new Image("graphics/SellSelectGraphic.png");
-        upgradeTowerImage = new Image("graphics/UpgradeSelectGraphic.png");
-        gameOverImage = new Image("graphics/GameOver.jpg");
-
-
-        roadTile = new Image("graphics/MapTile/sand_tile.png"); // Ảnh đường đi
-        towerTile = new Image("graphics/MapTile/grass_tile.png"); // Ảnh tháp
-
-
-        normalTowerGraphic = new Image("graphics/Towers/normalTower48.png");
-        machineGunTowerGraphic = new Image("graphics/Towers/machineGunTower48.png");
-        sniperTowerGraphic = new Image("graphics/Towers/sniperTower48.png");
-        towerBase = new Image("graphics/Towers/towerBase48.png");
-
-
-        normalTowerProjectile = new Image("graphics/Projectiles/normalTowerProjectile.png");
-        machineGunTowerProjectile = new Image("graphics/Projectiles/machineGunTowerProjectile.png");
-        sniperTowerProjectile = new Image("graphics/Projectiles/sniperTowerProjectile.png");
 
     }
 
@@ -563,27 +651,29 @@ public class PlayScreen extends BasicGameState {
             return;
         lastClick = System.currentTimeMillis();
 
-        if (selectTower == -1) {
+        if (selectMenuOption == -1) {
 
             if (buyNormalTowerButton.contains(Mouse.getX(), gameContainer.getHeight() - Mouse.getY()))
-                selectTower = 1;
+                selectMenuOption = 1;
 
             else if (buyMachineGunButton.contains(Mouse.getX(), gameContainer.getHeight() - Mouse.getY()))
-                selectTower = 2;
+                selectMenuOption = 2;
 
             else if (buySniperTowerButton.contains(Mouse.getX(), gameContainer.getHeight() - Mouse.getY()))
-                selectTower = 3;
+                selectMenuOption = 3;
+
+            else if (buySlowTowerButton.contains(Mouse.getX(), gameContainer.getHeight() - Mouse.getY()))
+                selectMenuOption = 4;
 
             else if (upgradeButton.contains(Mouse.getX(), gameContainer.getHeight() - Mouse.getY()))
-                selectTower = 4;
+                selectMenuOption = 5;
 
             else if (sellButton.contains(Mouse.getX(), gameContainer.getHeight() - Mouse.getY()))
-                selectTower = 5;
+                selectMenuOption = 6;
 
             else if (fastForwardButton.contains(Mouse.getX(), gameContainer.getHeight() - Mouse.getY()))
 
-                if (++countFastForwardClickedTime % 2 == 1) fastForward = true;
-                else fastForward = false;
+                fastForward = ++countFastForwardClickedTime % 2 == 1;
 
             else if (nextWave.contains(Mouse.getX(), gameContainer.getHeight() - Mouse.getY()))
 
@@ -592,56 +682,69 @@ public class PlayScreen extends BasicGameState {
             return;
         }
 
-        if (selectTower > 0 && selectTower < 4) {
+        if (selectMenuOption > 0 && selectMenuOption < 5) {
 
             if (buildableTile(x, y) && isBuildable(x, y)) {
 
-                switch (selectTower) {
+                switch (selectMenuOption) {
 
                     case 1:
-                        if (player1.getCurrentMoney() >= NormalTower.cost) {
+                        if (Player.getCurrentMoney() >= NormalTower.cost) {
 
                             Tower newNormalTower = new NormalTower(x, y);
                             towersOnMap.add(newNormalTower);
-                            player1.spendMoney(NormalTower.cost);
+                            Player.addMoney(-NormalTower.cost);
                             break;
 
                         } else
                             break;
 
                     case 2:
-                        if (player1.getCurrentMoney() >= MachineGunTower.cost) {
+                        if (Player.getCurrentMoney() >= MachineGunTower.cost) {
 
                             Tower newMachineTower = new MachineGunTower(x, y);
                             towersOnMap.add(newMachineTower);
-                            player1.spendMoney(MachineGunTower.cost);
+                            Player.addMoney(-MachineGunTower.cost);
                             break;
 
                         } else break;
 
                     case 3:
-                        if (player1.getCurrentMoney() >= SniperTower.cost) {
+                        if (Player.getCurrentMoney() >= SniperTower.cost) {
 
                             Tower newSniperTower = new SniperTower(x, y);
                             towersOnMap.add(newSniperTower);
-                            player1.spendMoney(SniperTower.cost);
+                            Player.addMoney(-SniperTower.cost);
                             break;
 
                         } else break;
+
+                    case 4:
+                        if (Player.getCurrentMoney() >= SlowTower.cost) {
+
+                            Tower newSlowTower = new SlowTower(x, y);
+                            towersOnMap.add(newSlowTower);
+                            Player.addMoney(-SlowTower.cost);
+                            break;
+
+                        } else break;
+
                 }
 
             }
 
-        } else if (selectTower == 4) {
+        } else if (selectMenuOption == 5) {
 
             for (int i = 0; i < towersOnMap.size(); i++) {
 
                 if (towersOnMap.get(i).getxLoc() == x && towersOnMap.get(i).getyLoc() == y) {
 
-                    if (player1.getCurrentMoney() >= towersOnMap.get(i).getCost() / 2) {
+                    if (Player.getCurrentMoney() >= towersOnMap.get(i).getCost() / 2) {
 
-                        player1.spendMoney(towersOnMap.get(i).getCost() / 2);
-                        towersOnMap.get(i).upgradeTower();
+                        if (towersOnMap.get(i).getTowerLevel() < 3) {
+                            Player.addMoney(-towersOnMap.get(i).getCost() / 2);
+                            towersOnMap.get(i).upgradeTower();
+                        }
 
                     } else break;
 
@@ -649,7 +752,7 @@ public class PlayScreen extends BasicGameState {
 
             }
 
-        } else if (selectTower == 5) {
+        } else if (selectMenuOption == 6) {
 
             for (int i = 0; i < towersOnMap.size(); i++) {
 
@@ -657,11 +760,20 @@ public class PlayScreen extends BasicGameState {
 
                     if (waveInProgress) {
 
-                        player1.addMoney(towersOnMap.get(i).getCost() * 7 / 10);
+                        Player.addMoney(towersOnMap.get(i).getCost() * 7 / 10);
 
                     } else {
 
-                        player1.addMoney(towersOnMap.get(i).getCost());
+                        if (towersOnMap.get(i).isRefundable()) {
+
+                            Player.addMoney(towersOnMap.get(i).getCost());
+
+                        } else {
+
+                            Player.addMoney(towersOnMap.get(i).getCost() * 7 / 10);
+
+                        }
+
                     }
 
                     towersOnMap.remove(i);
@@ -672,7 +784,7 @@ public class PlayScreen extends BasicGameState {
 
         }
 
-        selectTower = -1;
+        selectMenuOption = -1;
 
     }
 
@@ -683,7 +795,7 @@ public class PlayScreen extends BasicGameState {
         int mouseXPos = Mouse.getX();
         int mouseYPos = gameContainer.getHeight() - Mouse.getY();
 
-        switch (selectTower) {
+        switch (selectMenuOption) {
 
             case 1:
                 g.drawOval(mouseXPos - (float) NormalTower.fireRange, mouseYPos - (float) NormalTower.fireRange, (float) NormalTower.fireRange * 2, (float) NormalTower.fireRange * 2);
@@ -704,16 +816,46 @@ public class PlayScreen extends BasicGameState {
                 break;
 
             case 4:
-                upgradeTowerImage.drawCentered(mouseXPos, mouseYPos);
+                g.drawOval(mouseXPos - (float) SlowTower.fireRange, mouseYPos - (float) SlowTower.fireRange, (float) SlowTower.fireRange * 2, (float) SlowTower.fireRange * 2);
+                slowTowerButton.drawCentered(mouseXPos, mouseYPos);
+
                 break;
 
             case 5:
+                upgradeTowerImage.drawCentered(mouseXPos, mouseYPos);
+                break;
+
+            case 6:
                 sellTowerImage.drawCentered(mouseXPos, mouseYPos);
                 break;
 
         }
 
     }
+
+    // Hàm vẽ sân chơi theo mảng 2 chiều đại diện cho map:
+    public void drawMap() {
+
+        for (int y = 0; y < PlayMap.getHeightOfMap(); y++) {
+
+            for (int x = 0; x < PlayMap.getWidthOfMap(); x++) {
+
+                if (PlayMap.mapTile[y][x] instanceof RoadTile) {
+
+                    roadTile.draw(x * roadTile.getWidth(), y * roadTile.getHeight());
+
+                } else {
+
+                    towerTile.draw(x * roadTile.getWidth(), y * roadTile.getHeight());
+
+                }
+
+            }
+
+        }
+
+    }
+
 
     public static double getDelta() {
 

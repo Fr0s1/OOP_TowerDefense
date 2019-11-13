@@ -37,21 +37,31 @@ public class PlayMap {
                     exitTile = new RoadTile(x, y);
 
                 }
+
             }
+
         }
+
     }
 
     public static Tile getTile(int x, int y) {
+
         if (x > -1 && x < getWidthOfMap() && y > -1 && y < getHeightOfMap()) {
+
             return mapTile[y][x];
+
         } else {
+
             return new NullTile();
+
         }
+
     }
 
     public static boolean buildableTile(int x, int y) {
-        if (getTile(x, y).getType() == Tile.TileType.TOWER) return true;
-        else return false;
+
+        return getTile(x, y).getType() == Tile.TileType.TOWER;
+
     }
 
     public static int getWidthOfMap() {

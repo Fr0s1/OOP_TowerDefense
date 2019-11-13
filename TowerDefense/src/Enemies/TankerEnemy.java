@@ -2,15 +2,17 @@ package Enemies;
 
 import Map.PlayMap;
 
-public class TankerEnemy extends Enemy {
+class TankerEnemy extends Enemy {
 
     private static double movementSpeed = 40;
+
     private static Enemy.EnemyType type = EnemyType.TANKER;
+
     private static int reward = 150;
     private static double health = 300;
-    private static double armor = 5.0f;
+    private static double armor = 0.6;
 
-    public TankerEnemy() {
+    TankerEnemy() {
         super(type, PlayMap.startTile, health, movementSpeed, armor, reward);
     }
 }

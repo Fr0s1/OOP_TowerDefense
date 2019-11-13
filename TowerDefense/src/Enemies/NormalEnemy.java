@@ -2,14 +2,15 @@ package Enemies;
 
 import Map.PlayMap;
 
-public class NormalEnemy extends Enemy {
+class NormalEnemy extends Enemy {
     private static int movementSpeed = 50;
-    private static EnemyType type = EnemyType.NORMAL;
-    private static int reward = 100;
-    private static double health = 120;
-    private static double armor = 2.0f;
 
-    public NormalEnemy() {
+    private static EnemyType type = EnemyType.NORMAL;
+    private static int reward = 75;
+    private static double health = 120;
+    private static double armor = 0.2;
+
+    NormalEnemy() {
         super(type, PlayMap.startTile, health, movementSpeed, armor, reward);
     }
 }

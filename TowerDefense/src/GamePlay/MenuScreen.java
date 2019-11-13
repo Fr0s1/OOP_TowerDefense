@@ -10,15 +10,13 @@ import org.newdawn.slick.state.StateBasedGame;
 
 
 public class MenuScreen extends BasicGameState {
-    Image backGround;
-    Image logo;
-    Image startButtonGraphic;
-    Image exitButtonGraphic;
+    private Image backGround;
+    private Image logo;
+    private Image startButtonGraphic;
+    private Image exitButtonGraphic;
 
-    Rectangle startButton;
-    Rectangle exitButton;
-
-    Music RickAndMorty;
+    private Rectangle startButton;
+    private Rectangle exitButton;
 
     public MenuScreen(int state) {
     }
@@ -31,11 +29,12 @@ public class MenuScreen extends BasicGameState {
 
     @Override
     public void init(GameContainer gameContainer, StateBasedGame stateBasedGame) throws SlickException {
-        RickAndMorty = new Music("sound_effect/RickandMorty.wav");
+        Music rickAndMorty = new Music("sound_effect/RickandMorty.wav");
 
         loadImage();
         createButton(gameContainer);
-        RickAndMorty.play();
+
+//        rickAndMorty.play();
     }
 
     @Override
@@ -73,4 +72,5 @@ public class MenuScreen extends BasicGameState {
         startButton = new Rectangle((gc.getWidth() - startButtonGraphic.getWidth()) / 2, gc.getHeight() - logo.getHeight(), startButtonGraphic.getWidth(), startButtonGraphic.getHeight());
         exitButton = new Rectangle((gc.getWidth() - exitButtonGraphic.getWidth()) / 2, logo.getHeight() + startButtonGraphic.getHeight() + 70, exitButtonGraphic.getWidth(), exitButtonGraphic.getHeight());
     }
+
 }
