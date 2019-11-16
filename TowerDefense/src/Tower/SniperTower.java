@@ -7,7 +7,7 @@ public class SniperTower extends Tower {
 
     private static float reloadTime = 3.0f;
     private static TowerType type = TowerType.SNIPER_TOWER;
-    public static int cost = 600;
+    public static int cost = 700;
 
     public SniperTower(int xLoc, int yLoc) {
         super(xLoc, yLoc, damage, fireRange, reloadTime, type, cost);

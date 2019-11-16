@@ -10,7 +10,7 @@ class BossEnemy extends Enemy {
 
     private static int reward = 200;
     private static double health = 500;
-    private static double armor = 0.7;
+    private static double armor = 0.8;
 
 
     BossEnemy() {

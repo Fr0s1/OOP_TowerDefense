@@ -1,7 +1,5 @@
 package Tile;
 
-import Tile.Tile;
-
 public class NullTile extends Tile {
 
     public NullTile() {

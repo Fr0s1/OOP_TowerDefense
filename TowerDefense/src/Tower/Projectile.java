@@ -4,6 +4,7 @@ import Enemies.*;
 import Map.PlayMap;
 
 public class Projectile {
+
     public enum ProjectileType {
         MACHINE_GUN_PROJECTILE, NORMAL_PROJECTILE, SNIPER_PROJECTILE, SLOW_TOWER_PROJECTILE
     }

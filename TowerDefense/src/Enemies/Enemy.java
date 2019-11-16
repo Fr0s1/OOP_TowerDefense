@@ -1,13 +1,11 @@
 package Enemies;
 
-import GamePlay.PlayScreen;
 import Map.*;
 
 import static GamePlay.PlayScreen.*;
 
 import Tile.Checkpoint;
 import Tile.Tile;
-import Tower.Projectile;
 
 import java.util.ArrayList;
 
@@ -21,7 +19,7 @@ public abstract class Enemy {
     private double maxHealth;
     private double currentHealth;
 
-    public double distanceTraveled;
+    private double distanceTraveled;
 
     private double movementSpeed;
     private double armor;
@@ -292,7 +290,9 @@ public abstract class Enemy {
         return alive;
     }
 
-    public boolean isVisible() { return visible; }
+    public boolean isVisible() {
+        return visible;
+    }
 
     public boolean hasReachedExit() {
         return reachedExit;

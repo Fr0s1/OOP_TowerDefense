@@ -1,7 +1,5 @@
 package Tile;
 
-import Tile.Tile;
-
 public class RoadTile extends Tile {
 
     public RoadTile(int x, int y) {

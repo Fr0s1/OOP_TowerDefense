@@ -27,4 +27,5 @@ public class Player {
     static int getCurrentMoney() {
         return currentMoney;
     }
+
 }

@@ -1,7 +1,6 @@
 package Enemies;
 
 import GamePlay.Player;
-import Tower.Projectile;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,19 +9,19 @@ import java.util.Queue;
 
 public class EnemyWave {
 
-    int[][] enemyWave = {
+    private int[][] enemyWave = {
             {2, 1, 0, 0},
-            {5, 2, 0, 0},
-            {6, 2, 1, 0},
-            {6, 3, 2, 1},
-            {6, 3, 3, 2},
-            {8, 4, 4, 3},
-            {9, 5, 5, 4},
-            {10, 6, 6, 5},
-            {12, 6, 6, 6},
-            {15, 6, 8, 7},
-            {16, 6, 9, 8},
-            {20, 8, 10, 9},
+            {3, 2, 0, 0},
+            {4, 2, 1, 0},
+            {5, 3, 2, 1},
+            {6, 4, 3, 2},
+            {7, 4, 4, 3},
+            {8, 5, 5, 4},
+            {9, 6, 6, 5},
+            {10, 6, 6, 6},
+            {11, 6, 8, 7},
+            {12, 6, 9, 8},
+            {13, 8, 10, 9},
     };
 
     public static Queue<Enemy> enemyQueue;
@@ -37,15 +36,14 @@ public class EnemyWave {
     }
 
     private boolean hasSpawn = false;
-    private boolean addToQueue = false;
 
     public void update(int currentLevel) {
 
         if (!hasSpawn) {
 
             spawn(currentLevel); // Thêm tất cả các quân địch trong một wave vào hàng chờ
-            addToQueue = true;
             hasSpawn = true;
+
         }
 
         addEnemyToActiveList(); // Thêm quân địch để hiện thị trên bản đồ
@@ -72,7 +70,9 @@ public class EnemyWave {
                 activeEnemyList.remove(i);
 
             }
+
         }
+
     }
 
     private void spawn(int currentLevel) {
@@ -104,7 +104,8 @@ public class EnemyWave {
                 }
 
             } else {
-                for (int j = 1; j <= enemyWave[currentLevel - 1][i] + currentLevel - 11; j++) {
+
+                for (int j = 1; j <= enemyWave[11][i] + currentLevel - 11; j++) {
 
                     switch (i) {
                         case 0:
@@ -130,12 +131,14 @@ public class EnemyWave {
 
         }
 
+        Collections.shuffle((LinkedList<Enemy>) enemyQueue);
+
     }
 
     private int tickCount = 0; // Biến đếm
-    private int enemySpawnDelay = 20; // Để không add liên tiếp quân địch vào danh sách
+    private int enemySpawnDelay = 15; // Để không add liên tiếp quân địch vào danh sách
 
-    public void addEnemyToActiveList() {
+    private void addEnemyToActiveList() {
 
         tickCount++;
 
@@ -154,10 +157,9 @@ public class EnemyWave {
     }
 
     public void setRespawn() {
+
         hasSpawn = false;
+
     }
 
-    public boolean hasAddedToQueue() {
-        return addToQueue;
-    }
 }

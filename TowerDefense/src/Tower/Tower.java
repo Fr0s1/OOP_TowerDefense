@@ -63,6 +63,7 @@ class CompareSlowedEnemy implements Comparator<Enemy> {
 }
 
 public abstract class Tower {
+
     public enum TowerType {
         NORMAL_TOWER, MACHINE_GUN_TOWER, SNIPER_TOWER, SLOW_TOWER
     }
@@ -145,8 +146,16 @@ public abstract class Tower {
     * */
     public void addEnemiesInRange(ArrayList<Enemy> wave) {
 
-        enemiesInRange.clear();
-        slowedEnemiesInRange.clear();
+        if (towerType != TowerType.SLOW_TOWER) {
+
+            enemiesInRange.clear();
+
+        } else {
+
+            slowedEnemiesInRange.clear();
+
+        }
+
 
         for (Enemy e : wave) {
 
@@ -304,7 +313,7 @@ public abstract class Tower {
 
             towerLevel++;
 
-            this.towerDamage *= 3.0 / 2;
+            this.towerDamage += 10;
 
             this.towerCost = Math.round((this.towerCost * 3) / 2);
 
@@ -359,4 +368,5 @@ public abstract class Tower {
     public boolean isRefundable() {
         return canRefund;
     }
+
 }

@@ -3,7 +3,7 @@ package Tower;
 public class SlowTower extends Tower {
 
     public static double fireRange = 48 * Math.sqrt(13);
-    public static int cost = 200;
+    public static int cost = 300;
 
     private static double damage = 0;
     private static float reloadTime = 0.9f;
