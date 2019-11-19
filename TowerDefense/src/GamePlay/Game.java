@@ -7,10 +7,10 @@ import org.newdawn.slick.state.StateBasedGame;
 
 public class Game extends StateBasedGame {
 
-    public static final int menuScreen = 0;
-    public static final int playScreen = 1;
+    private static final int menuScreen = 0;
+    private static final int playScreen = 1;
 
-    public Game(String name) {
+    private Game(String name) {
         super(name);
         this.addState(new MenuScreen(menuScreen)); // Add menu screen
         this.addState(new PlayScreen(playScreen)); // Add play screen

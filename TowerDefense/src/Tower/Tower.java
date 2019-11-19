@@ -12,7 +12,6 @@ class CompareEnemy implements Comparator<Enemy> {
     public int compare(Enemy target1, Enemy target2) {
 
         // Ưu tiên mục tiêu đầu tiêu, nhưng nếu xuất hiện địch di chuyển nhanh thì chuyển sang mục tiêu ấy
-
         if (target1.getDistanceTraveled() < target2.getDistanceTraveled()) {
 
             if (target1.getOriginalMovementSpeed() > target2.getOriginalMovementSpeed()) {
@@ -237,7 +236,7 @@ public abstract class Tower {
 
     }
 
-    public boolean canAttack() {
+    private boolean canAttack() {
 
         timeSinceLastShot += PlayScreen.delta;
 

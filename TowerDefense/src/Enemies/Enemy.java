@@ -123,10 +123,10 @@ public abstract class Enemy {
 
         Tile next = null;
 
-        Checkpoint c;
+        Checkpoint c; // Ô ở góc tiếp theo theo hướng đang đi
 
-        // Boolean to decide if checkpoint is found
         boolean found = false;
+
         int counter = 1;
 
         while (!found) {
@@ -162,7 +162,7 @@ public abstract class Enemy {
         while (cont) {
             int[] currentDirections = findNextDirection(checkpoints.get(counter).getTile());
 
-            // Check if a next direction/checkpoint exists,
+            // Tìm xem ô ở góc tiếp theo có tồn tại hay không
             if (currentDirections[0] == 2 || counter == 20) {
 
                 cont = false;
@@ -180,10 +180,10 @@ public abstract class Enemy {
     }
 
     private boolean checkpointReached() {
-        boolean reached = false;
-        Tile nextCheckpoint = checkpoints.get(currentCheckpoint).getTile();
 
-        // Check if position reached tile within variance of 3 (arbitrary):
+        boolean reached = false;
+
+        Tile nextCheckpoint = checkpoints.get(currentCheckpoint).getTile();
 
         if (xPos > nextCheckpoint.getXPixel() - 3 && xPos < nextCheckpoint.getXPixel() + 3
                 && yPos > nextCheckpoint.getYPixel() - 3 && yPos < nextCheckpoint.getYPixel() + 3) {
@@ -207,13 +207,18 @@ public abstract class Enemy {
 
         } else {
 
+            // Nếu đang bị ảnh hưởng bởi tháp làm chậm, cập nhật thời gian bị làm chậm
             if (affectedBySlowTower) {
 
                 slowDurationCount += delta;
 
             }
 
-            unfreezeEnemy();
+            if (slowDurationCount > slowedDuration) {
+
+                unfreezeEnemy();
+
+            }
 
             if (checkpointReached()) {
 
@@ -272,13 +277,10 @@ public abstract class Enemy {
 
     public void unfreezeEnemy() {
 
-        if (slowDurationCount > slowedDuration) {
 
-            this.resetSlowDuration();
+        this.resetSlowDuration();
 
-            affectedBySlowTower = false;
-
-        }
+        affectedBySlowTower = false;
 
     }
 

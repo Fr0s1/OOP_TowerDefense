@@ -115,14 +115,12 @@ public class PlayScreen extends BasicGameState {
 
     private int currentLevel = 1;
 
-    boolean gameOver = false;
+    private boolean gameOver = false;
 
     private int countFastForwardClickedTime = 0;
     private boolean fastForward = false;
 
     private boolean waveInProgress = false;
-
-    private boolean enterPlayScreen = false;
 
     public PlayScreen(int state) {
 
@@ -152,7 +150,6 @@ public class PlayScreen extends BasicGameState {
 
         createMenuButtons();
 
-        enterPlayScreen = true;
 
 //        themeSong.play();
     }
@@ -189,8 +186,6 @@ public class PlayScreen extends BasicGameState {
 
     @Override
     public void update(GameContainer gameContainer, StateBasedGame stateBasedGame, int delta) throws SlickException {
-
-        enterPlayScreen = true;
 
         isGameOver();
 
